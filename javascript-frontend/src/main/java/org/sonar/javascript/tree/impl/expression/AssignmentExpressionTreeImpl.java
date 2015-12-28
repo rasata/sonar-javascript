@@ -21,8 +21,11 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -30,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class AssignmentExpressionTreeImpl extends JavaScriptTree implements AssignmentExpressionTree {
+public class AssignmentExpressionTreeImpl extends JavaScriptTree implements AssignmentExpressionTree, TypableTree {
 
   private final ExpressionTree variable;
   private final SyntaxToken operator;
@@ -78,5 +81,10 @@ public class AssignmentExpressionTreeImpl extends JavaScriptTree implements Assi
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new NotImplementedException();
   }
 }
