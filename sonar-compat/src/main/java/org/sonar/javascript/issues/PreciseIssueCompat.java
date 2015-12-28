@@ -30,6 +30,9 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
 public class PreciseIssueCompat {
 
+  private PreciseIssueCompat() {
+  }
+
   public static void save(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, PreciseIssue issue) {
     NewIssue newIssue = sensorContext.newIssue();
 
