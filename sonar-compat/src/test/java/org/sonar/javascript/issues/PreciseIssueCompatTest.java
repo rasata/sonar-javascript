@@ -73,7 +73,7 @@ public class PreciseIssueCompatTest {
   public void secondaryLocation() throws Exception {
     DefaultIssue newIssue = new DefaultIssue(storage);
     when(sensorContext.newIssue()).thenReturn(newIssue);
-    PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, new PreciseIssue(null, primary).secondaryLocation(secondary1).secondaryLocation(secondary2).cost(3.));
+    PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, new PreciseIssue(null, primary).secondary(secondary1).secondary(secondary2).cost(3.));
 
     assertThat(newIssue.flows()).hasSize(2);
     Flow flow = newIssue.flows().get(0);

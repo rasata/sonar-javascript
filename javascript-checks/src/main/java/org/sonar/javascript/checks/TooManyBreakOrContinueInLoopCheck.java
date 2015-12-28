@@ -193,7 +193,7 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
       PreciseIssue issue = new PreciseIssue(this, primaryLocation)
         .cost((double) jumpStatementNumber - 1);
       for (Tree jump : jumps) {
-        issue.secondaryLocation(new IssueLocation(jump));
+        issue.secondary(new IssueLocation(jump));
       }
       getContext().addIssue(issue);
     }

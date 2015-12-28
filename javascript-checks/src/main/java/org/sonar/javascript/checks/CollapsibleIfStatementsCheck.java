@@ -55,7 +55,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
       if (innerIfStatement != null) {
         IssueLocation primaryLocation = issueLocation(tree, MESSAGE);
         IssueLocation secondaryLocation = issueLocation(innerIfStatement, SECONDARY_MESSAGE);
-        getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
+        getContext().addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
       }
     }
 

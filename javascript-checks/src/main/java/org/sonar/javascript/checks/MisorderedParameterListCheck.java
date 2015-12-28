@@ -66,7 +66,7 @@ public class MisorderedParameterListCheck extends BaseTreeVisitor {
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
           IssueLocation primaryLocation = new IssueLocation(callExpression.arguments(), message(functionDeclaration));
           IssueLocation secondaryLocation = new IssueLocation(functionDeclaration.parameters());
-          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
+          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
         }
       }
     }

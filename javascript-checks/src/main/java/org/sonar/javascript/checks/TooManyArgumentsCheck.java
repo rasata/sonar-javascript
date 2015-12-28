@@ -65,7 +65,7 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = getMessage(tree, parametersNumber, argumentsNumber);
         IssueLocation secondaryLocation = new IssueLocation(functionTree.parameters(), "Formal parameters");
-        getContext().addIssue(new PreciseIssue(this, new IssueLocation(tree.arguments(), message)).secondaryLocation(secondaryLocation));
+        getContext().addIssue(new PreciseIssue(this, new IssueLocation(tree.arguments(), message)).secondary(secondaryLocation));
       }
 
     }

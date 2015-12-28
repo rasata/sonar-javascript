@@ -71,8 +71,8 @@ public class DifferentTypesComparisonCheck extends BaseTreeVisitor {
     String message = String.format(MESSAGE, operator, operator.substring(0, operator.length() - 1));
 
     PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.operator(), message))
-      .secondaryLocation(new IssueLocation(tree.leftOperand()))
-      .secondaryLocation(new IssueLocation(tree.rightOperand()));
+      .secondary(new IssueLocation(tree.leftOperand()))
+      .secondary(new IssueLocation(tree.rightOperand()));
 
     getContext().addIssue(issue);
   }

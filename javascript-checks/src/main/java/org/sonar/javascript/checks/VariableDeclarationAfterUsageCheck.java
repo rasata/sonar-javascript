@@ -80,7 +80,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
         if (usages.get(i).isDeclaration()) {
           IssueLocation primaryLocation = new IssueLocation(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()));
           IssueLocation secondaryLocation = new IssueLocation(usages.get(i).identifierTree(), "Declaration");
-          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
+          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
           return;
         }
       }

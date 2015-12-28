@@ -120,7 +120,7 @@ public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
     PreciseIssue issue = new PreciseIssue(this, primaryLocation);
 
     for (int i = 2; i < statementsAtLine.size(); i++) {
-      issue.secondaryLocation(new IssueLocation(statementsAtLine.get(i)));
+      issue.secondary(new IssueLocation(statementsAtLine.get(i)));
     }
 
     getContext().addIssue(issue);

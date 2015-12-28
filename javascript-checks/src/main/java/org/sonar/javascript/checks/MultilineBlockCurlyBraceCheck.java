@@ -124,7 +124,7 @@ public class MultilineBlockCurlyBraceCheck extends BaseTreeVisitor {
     IssueLocation location = new IssueLocation(statement, String.format(primaryMessage, nbLines));
     PreciseIssue issue = new PreciseIssue(this, location);
     for (IssueLocation secondaryLocation : secondaryLocations) {
-      issue.secondaryLocation(secondaryLocation);
+      issue.secondary(secondaryLocation);
     }
 
     getContext().addIssue(issue);

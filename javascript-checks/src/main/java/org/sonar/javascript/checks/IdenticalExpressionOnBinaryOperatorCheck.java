@@ -54,7 +54,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
       String message = String.format(MESSAGE, tree.operator().text());
       IssueLocation primary = new IssueLocation(tree.rightOperand(), message);
       IssueLocation secondary = new IssueLocation(tree.leftOperand());
-      getContext().addIssue(new PreciseIssue(this, primary).secondaryLocation(secondary));
+      getContext().addIssue(new PreciseIssue(this, primary).secondary(secondary));
     }
 
     super.visitBinaryExpression(tree);

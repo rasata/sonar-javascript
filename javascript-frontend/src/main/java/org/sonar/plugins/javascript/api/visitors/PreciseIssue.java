@@ -63,7 +63,7 @@ public class PreciseIssue implements Issue {
     return secondaryLocations;
   }
 
-  public PreciseIssue secondaryLocation(IssueLocation secondaryLocation) {
+  public PreciseIssue secondary(IssueLocation secondaryLocation) {
     secondaryLocations.add(secondaryLocation);
     return this;
   }

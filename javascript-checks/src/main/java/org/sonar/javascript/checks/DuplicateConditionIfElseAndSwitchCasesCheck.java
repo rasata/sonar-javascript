@@ -86,7 +86,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
     IssueLocation secondaryLocation = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondaryLocation.startLine());
     IssueLocation primaryLocation = new IssueLocation(duplicate, message);
-    getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
+    getContext().addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
   }
 
   /**

@@ -108,7 +108,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondary.startLine());
-    getContext().addIssue(new PreciseIssue(this, new IssueLocation(duplicate, message)).secondaryLocation(secondary));
+    getContext().addIssue(new PreciseIssue(this, new IssueLocation(duplicate, message)).secondary(secondary));
   }
 
   private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
@@ -135,8 +135,8 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
       PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE))
-        .secondaryLocation(new IssueLocation(tree.trueExpression()))
-        .secondaryLocation(new IssueLocation(tree.falseExpression()));
+        .secondary(new IssueLocation(tree.trueExpression()))
+        .secondary(new IssueLocation(tree.falseExpression()));
 
       getContext().addIssue(preciseIssue);
     }

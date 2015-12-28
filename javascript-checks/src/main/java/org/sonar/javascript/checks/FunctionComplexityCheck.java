@@ -121,7 +121,7 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
     PreciseIssue issue = new PreciseIssue(this, new IssueLocation(primaryLocationTree, message));
 
     for (Tree complexityTree : complexityTrees) {
-      issue.secondaryLocation(new IssueLocation(complexityTree, "+1"));
+      issue.secondary(new IssueLocation(complexityTree, "+1"));
     }
 
     issue.cost((double) complexity - maximumFunctionComplexityThreshold);

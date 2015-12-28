@@ -161,7 +161,7 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
 
     PreciseIssue issue = new PreciseIssue(this, new IssueLocation(expression, message));
     for (SyntaxToken complexityOperator : complexityOperators) {
-      issue.secondaryLocation(new IssueLocation(complexityOperator, "+1"));
+      issue.secondary(new IssueLocation(complexityOperator, "+1"));
     }
 
     issue.cost ((double) complexity - max);

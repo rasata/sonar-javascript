@@ -257,7 +257,7 @@ public class JavaScriptCheckVerifierTest {
 
         if (issue.secondaryLines() != null) {
           for (Integer secondaryLine : issue.secondaryLines()) {
-            preciseIssue.secondaryLocation(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
+            preciseIssue.secondary(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
           }
         }
         context.addIssue(preciseIssue);

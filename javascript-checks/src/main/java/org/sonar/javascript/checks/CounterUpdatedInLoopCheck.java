@@ -191,6 +191,6 @@ public class CounterUpdatedInLoopCheck extends BaseTreeVisitor {
   private void raiseIssue(IdentifierTree writeUsage, IdentifierTree identifierUsedInUpdateClause) {
     IssueLocation secondaryLocation = new IssueLocation(identifierUsedInUpdateClause, SECONDARY_MESSAGE);
     String message = String.format(MESSAGE, writeUsage.name());
-    getContext().addIssue(new PreciseIssue(this, new IssueLocation(writeUsage, message)).secondaryLocation(secondaryLocation));
+    getContext().addIssue(new PreciseIssue(this, new IssueLocation(writeUsage, message)).secondary(secondaryLocation));
   }
 }
