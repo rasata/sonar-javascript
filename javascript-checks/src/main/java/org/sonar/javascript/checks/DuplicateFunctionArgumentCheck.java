@@ -77,7 +77,7 @@ public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
         duplicatedParameters.size() > 1 ? "s" : "",
         parameterListString(duplicatedParameters)
       );
-      getContext().addIssue(this, tree, message);
+      addLineIssue(this, tree, message);
     }
   }
 

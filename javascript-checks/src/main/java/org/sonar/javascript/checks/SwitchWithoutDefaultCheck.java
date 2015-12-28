@@ -47,10 +47,10 @@ public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (!hasDefaultCase(tree)) {
-      getContext().addIssue(this, tree, ADD_DEFAULT_MESSAGE);
+      addLineIssue(this, tree, ADD_DEFAULT_MESSAGE);
 
     } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      getContext().addIssue(this, tree, MOVE_DEFAULT_MESSAGE);
+      addLineIssue(this, tree, MOVE_DEFAULT_MESSAGE);
     }
     super.visitSwitchStatement(tree);
   }

@@ -50,7 +50,7 @@ public class UselessIncrementCheck extends BaseTreeVisitor {
       if (SyntacticEquivalence.areEquivalent(assignment.variable(), postfix.expression())) {
         String type = postfix.is(Tree.Kind.POSTFIX_INCREMENT) ? "increment" : "decrement";
         String message = String.format(MESSAGE, type);
-        getContext().addIssue(this, postfix, message);
+        addLineIssue(this, postfix, message);
       }
     }
     super.visitAssignmentExpression(assignment);

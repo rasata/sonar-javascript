@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -36,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
@@ -118,15 +118,15 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
       primaryLocationTree = ((FunctionDeclarationTree) tree).name();
     }
 
-    IssueLocation primary = new IssueLocation(primaryLocationTree, message);
+    PreciseIssue issue = new PreciseIssue(this, new IssueLocation(primaryLocationTree, message));
 
-    List<IssueLocation> secondaryLocations = new ArrayList<>();
     for (Tree complexityTree : complexityTrees) {
-      secondaryLocations.add(new IssueLocation(complexityTree, "+1"));
+      issue.secondaryLocation(new IssueLocation(complexityTree, "+1"));
     }
 
-    double cost = (double) complexity - maximumFunctionComplexityThreshold;
-    getContext().addIssue(this, primary, secondaryLocations, cost);
+    issue.cost((double) complexity - maximumFunctionComplexityThreshold);
+
+    getContext().addIssue(issue);
   }
 
   public void setMaximumFunctionComplexityThreshold(int threshold) {

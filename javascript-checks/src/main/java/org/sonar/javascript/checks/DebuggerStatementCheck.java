@@ -43,7 +43,7 @@ public class DebuggerStatementCheck extends BaseTreeVisitor {
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(this, tree, MESSAGE);
     // no sub tree
   }
 

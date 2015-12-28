@@ -29,6 +29,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -64,7 +65,7 @@ public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVi
 
     for (int i = 0; i < lines.size(); i++) {
       if (lines.get(i).contains("\t")) {
-        getContext().addIssue(this, i + 1, MESSAGE);
+        getContext().addIssue(new LineIssue(this, i + 1, MESSAGE));
         break;
       }
     }

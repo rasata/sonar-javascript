@@ -58,7 +58,7 @@ public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
       }
     }
     if (!symbol.usages().isEmpty()) {
-      getContext().addIssue(this, symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
+      addLineIssue(this, symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
     }
   }
 }

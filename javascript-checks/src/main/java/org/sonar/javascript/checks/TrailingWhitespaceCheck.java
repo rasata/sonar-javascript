@@ -31,6 +31,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -76,7 +77,7 @@ public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor impleme
       String line = lines.get(i);
 
       if (line.length() > 0 && Pattern.matches("[" + JavaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
-        getContext().addIssue(this, i + 1, MESSAGE);
+        getContext().addIssue(new LineIssue(this, i + 1, MESSAGE));
       }
     }
 

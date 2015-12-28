@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 /**
@@ -29,6 +30,13 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 public interface JavaScriptCheck {
 
   TreeVisitorContext getContext();
+
+  /**
+   *  This method should be deprecated, as soon as this plugin will be migrated on 5.X LTS (with support of precise issue locations)
+   *  Instead please use <code>getContext().addIssue()</code>
+   */
+  @Deprecated
+  void addLineIssue(JavaScriptCheck check, Tree tree, String message);
 
   void scanFile(TreeVisitorContext context);
 }

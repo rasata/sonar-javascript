@@ -63,7 +63,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
         if (!usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
-          getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name()));
+          addLineIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name()));
         }
       }
     }

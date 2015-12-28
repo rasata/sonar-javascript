@@ -50,7 +50,7 @@ public class ReturnOfBooleanExpressionCheck extends BaseTreeVisitor {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.elseClause() != null && returnsBoolean(tree.elseClause().statement()) && returnsBoolean(tree.statement())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     visitIf(tree);

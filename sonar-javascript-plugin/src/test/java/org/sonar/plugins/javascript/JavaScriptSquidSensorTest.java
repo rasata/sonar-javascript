@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.InterruptedIOException;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,6 +53,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.ProgressReport;
@@ -305,6 +307,11 @@ public class JavaScriptSquidSensorTest {
     @Override
     public TreeVisitorContext getContext() {
       return null;
+    }
+
+    @Override
+    public void addLineIssue(JavaScriptCheck check, Tree tree, String message) {
+      throw new NotImplementedException();
     }
 
     @Override

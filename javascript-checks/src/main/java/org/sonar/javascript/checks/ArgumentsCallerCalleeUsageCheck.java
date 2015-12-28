@@ -110,6 +110,10 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseTreeVisitor
     }
   }
 
+  private void addIssue(Tree tree, String message) {
+    addLineIssue(this, tree, message);
+  }
+
   private void checkArgumentsProperty(Tree tree, String property) {
     if (CALLER.equals(property)) {
       addIssue(tree, "Remove this use of \"arguments.caller\".");

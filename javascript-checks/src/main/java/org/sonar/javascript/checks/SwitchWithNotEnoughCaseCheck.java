@@ -43,7 +43,7 @@ public class SwitchWithNotEnoughCaseCheck extends BaseTreeVisitor {
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (tree.cases().size() < 3) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitSwitchStatement(tree);

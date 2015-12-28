@@ -29,6 +29,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -75,7 +76,7 @@ public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
       if (trivia.line() == previousTokenLine) {
         String comment = trivia.text();
         if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
-          getContext().addIssue(this, previousTokenLine, MESSAGE);
+          getContext().addIssue(new LineIssue(this, previousTokenLine, MESSAGE));
         }
       }
     }

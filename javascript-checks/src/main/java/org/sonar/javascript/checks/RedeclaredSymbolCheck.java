@@ -64,7 +64,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration()) {
-        getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
+        addLineIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
       }
     }
   }

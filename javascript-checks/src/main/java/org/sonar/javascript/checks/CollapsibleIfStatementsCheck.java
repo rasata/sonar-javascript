@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -30,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -55,7 +55,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
       if (innerIfStatement != null) {
         IssueLocation primaryLocation = issueLocation(tree, MESSAGE);
         IssueLocation secondaryLocation = issueLocation(innerIfStatement, SECONDARY_MESSAGE);
-        getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
+        getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
       }
     }
 

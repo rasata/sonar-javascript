@@ -137,8 +137,7 @@ public class NestedControlFlowDepthCheck extends BaseTreeVisitor {
 
   private void checkNestedLevel(Tree tree) {
     if (nestedLevel == getMaximumNestingLevel() + 1) {
-      getContext().addIssue(this, tree,
-        String.format(MESSAGE, getMaximumNestingLevel()));
+      addLineIssue(this, tree, String.format(MESSAGE, getMaximumNestingLevel()));
     }
   }
 

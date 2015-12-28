@@ -50,7 +50,7 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
     int argumentsLine = ((JavaScriptTree) tree.arguments()).getLine();
 
     if (calleeLastLine != argumentsLine) {
-      getContext().addIssue(this, tree.arguments(), String.format(MESSAGE, calleeLastLine));
+      addLineIssue(this, tree.arguments(), String.format(MESSAGE, calleeLastLine));
     }
     super.visitCallExpression(tree);
   }

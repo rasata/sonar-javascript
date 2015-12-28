@@ -53,7 +53,7 @@ public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
       SwitchClauseTree switchClauseTree = cases.get(i);
       List<StatementTree> statements = switchClauseTree.statements();
       if (!statements.isEmpty() && !endsWithJump(statements)) {
-        getContext().addIssue(this, switchClauseTree, MESSAGE);
+        addLineIssue(this, switchClauseTree, MESSAGE);
       }
     }
 

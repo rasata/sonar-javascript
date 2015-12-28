@@ -68,7 +68,7 @@ public class NewOperatorMisuseCheck extends BaseTreeVisitor {
       if (!CheckUtils.removeParenthesis(expression).is(Tree.Kind.FUNCTION_EXPRESSION)) {
         expressionStr = CheckUtils.asString(expression);
       }
-      getContext().addIssue(this, expression, String.format(MESSAGE, expressionStr));
+      addLineIssue(this, expression, String.format(MESSAGE, expressionStr));
     }
 
     super.visitNewExpression(tree);

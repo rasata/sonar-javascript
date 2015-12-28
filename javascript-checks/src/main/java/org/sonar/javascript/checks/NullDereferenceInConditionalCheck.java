@@ -30,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -101,8 +102,8 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     @Override
     public void visitMemberExpression(MemberExpressionTree tree) {
       if (SyntacticEquivalence.areEquivalent(tree.object(), nullExpression)) {
-        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression,
-          String.format(MESSAGE, CheckUtils.asString(nullExpression)));
+        context.addIssue(new LineIssue(NullDereferenceInConditionalCheck.this, nullExpression,
+          String.format(MESSAGE, CheckUtils.asString(nullExpression))));
       }
       super.visitMemberExpression(tree);
     }

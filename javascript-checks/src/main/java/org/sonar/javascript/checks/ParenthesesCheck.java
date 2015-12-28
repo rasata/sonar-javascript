@@ -154,7 +154,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
       }
 
       String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
-      getContext().addIssue(this, expression, String.format(MESSAGE, expressingString));
+      addLineIssue(this, expression, String.format(MESSAGE, expressingString));
     }
   }
 
@@ -164,7 +164,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
 
       if (nestedExpr != null && !nestedExpr.is(SHOULD_BE_PARENTHESISED_AFTER_TYPEOF)) {
         String expressingString = CheckUtils.asString(nestedExpr);
-        getContext().addIssue(this, nestedExpr, String.format(MESSAGE, expressingString));
+        addLineIssue(this, nestedExpr, String.format(MESSAGE, expressingString));
       }
     }
   }

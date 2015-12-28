@@ -58,7 +58,7 @@ public class SemicolonCheck extends BaseTreeVisitor {
 
   private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
     if (semicolonToken == null) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
   }
 

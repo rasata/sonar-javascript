@@ -85,7 +85,7 @@ public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
       try {
         URI uri = new URI(value);
         if (isBad(uri)) {
-          getContext().addIssue(this, tree, MESSAGE);
+          addLineIssue(this, tree, MESSAGE);
         }
       } catch (URISyntaxException e) {
         // we don't consider uri, which could not be parsed

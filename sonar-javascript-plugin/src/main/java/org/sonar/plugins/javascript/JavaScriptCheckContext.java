@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
-import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
@@ -126,8 +126,8 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
     if (issue instanceof FileIssue) {
       saveFileIssue((FileIssue) issue);
 
-    } else if (issue instanceof LegacyIssue) {
-      saveLegacyIssue((LegacyIssue) issue);
+    } else if (issue instanceof LineIssue) {
+      saveLegacyIssue((LineIssue) issue);
 
     } else {
       savePreciseIssue((PreciseIssue) issue);
@@ -143,12 +143,12 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
     }
   }
 
-  private void saveLegacyIssue(LegacyIssue issue) {
+  private void saveLegacyIssue(LineIssue issue) {
     saveIssue(issue.check(), issue.line(), issue.message(), issue.cost());
   }
 
   private void saveFileIssue(FileIssue issue) {
-    saveIssue(issue.check(), 0, issue.message(), issue.cost());
+    saveIssue(issue.check(), null, issue.message(), issue.cost());
   }
 
   private static boolean isSonarQube52OrLater() {

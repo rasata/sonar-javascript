@@ -47,7 +47,7 @@ public class SelfAssignmentCheck extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     ExpressionTree variable = tree.variable();
     if (tree.is(Tree.Kind.ASSIGNMENT) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
     super.visitAssignmentExpression(tree);
   }

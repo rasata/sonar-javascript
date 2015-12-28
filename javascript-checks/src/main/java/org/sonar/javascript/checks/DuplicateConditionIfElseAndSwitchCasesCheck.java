@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -35,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -86,7 +86,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
     IssueLocation secondaryLocation = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondaryLocation.startLine());
     IssueLocation primaryLocation = new IssueLocation(duplicate, message);
-    getContext().addIssue(this, primaryLocation, ImmutableList.of(secondaryLocation), null);
+    getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
   }
 
   /**

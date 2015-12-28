@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -36,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -108,7 +108,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondary.startLine());
-    getContext().addIssue(this, new IssueLocation(duplicate, message), ImmutableList.of(secondary), null);
+    getContext().addIssue(new PreciseIssue(this, new IssueLocation(duplicate, message)).secondaryLocation(secondary));
   }
 
   private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
@@ -134,10 +134,11 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      List<IssueLocation> secondaryLocations = ImmutableList.of(
-        new IssueLocation(tree.trueExpression()),
-        new IssueLocation(tree.falseExpression()));
-      getContext().addIssue(this, new IssueLocation(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE), secondaryLocations, null);
+      PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE))
+        .secondaryLocation(new IssueLocation(tree.trueExpression()))
+        .secondaryLocation(new IssueLocation(tree.falseExpression()));
+
+      getContext().addIssue(preciseIssue);
     }
     super.visitConditionalExpression(tree);
   }

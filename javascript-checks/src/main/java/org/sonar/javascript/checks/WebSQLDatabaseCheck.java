@@ -50,14 +50,14 @@ public class WebSQLDatabaseCheck extends BaseTreeVisitor {
     ExpressionTree callee = tree.callee();
 
     if (isOpenDatabase(callee)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
 
     } else if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree memberExpr = (MemberExpressionTree) callee;
       boolean isWindowObject = memberExpr.object().types().contains(WebApiType.WINDOW) || memberExpr.object().is(Kind.THIS);
 
       if (isWindowObject && isOpenDatabase(memberExpr.property())) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(this, tree, MESSAGE);
       }
     }
 

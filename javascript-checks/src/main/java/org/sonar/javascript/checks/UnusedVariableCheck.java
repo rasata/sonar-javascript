@@ -61,7 +61,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        getContext().addIssue(this, usage.identifierTree(), message);
+        addLineIssue(this, usage.identifierTree(), message);
       }
     }
   }

@@ -60,7 +60,7 @@ public class ComparisonWithNaNCheck extends SubscriptionBaseTreeVisitor {
     BinaryExpressionTree equalityExpr = (BinaryExpressionTree) tree;
 
     if (isNaN(equalityExpr.leftOperand()) || isNaN(equalityExpr.rightOperand())) {
-      addIssue(tree, String.format(MESSAGE, equalityExpr.operator().text()));
+      addLineIssue(this, tree, String.format(MESSAGE, equalityExpr.operator().text()));
     }
   }
 

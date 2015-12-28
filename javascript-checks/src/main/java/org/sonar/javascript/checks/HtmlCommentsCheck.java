@@ -50,7 +50,7 @@ public class HtmlCommentsCheck extends SubscriptionBaseTreeVisitor {
 
     for (SyntaxTrivia trivia : token.trivias()) {
       if (trivia.text().startsWith("<!--")) {
-        getContext().addIssue(this, trivia, MESSAGE);
+        addLineIssue(this, trivia, MESSAGE);
       }
     }
   }

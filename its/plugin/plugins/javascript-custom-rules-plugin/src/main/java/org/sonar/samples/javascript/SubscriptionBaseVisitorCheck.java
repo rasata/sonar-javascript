@@ -47,7 +47,7 @@ public class SubscriptionBaseVisitorCheck extends SubscriptionBaseTreeVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    getContext().addIssue(this, tree, "For in statement.");
+    addLineIssue(this, tree, "For in statement.");
   }
 
 }

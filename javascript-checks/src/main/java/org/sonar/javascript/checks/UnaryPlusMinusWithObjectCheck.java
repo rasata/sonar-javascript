@@ -69,7 +69,7 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
       boolean isDateException = isDateException(tree, type);
       if (!isDateException && !ALLOWED_TYPES.contains(type.kind())) {
         String operator = ((UnaryExpressionTree) tree).operator().text();
-        addIssue(tree, String.format(MESSAGE, operator));
+        addLineIssue(this, tree, String.format(MESSAGE, operator));
       }
     }
   }

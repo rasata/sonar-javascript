@@ -56,13 +56,13 @@ public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        getContext().addIssue(check, usage.identifierTree(), message);
+        addLineIssue(check, usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
     if (!issueRaised) {
-      getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
+      addLineIssue(check, symbol.usages().iterator().next().identifierTree(), message);
     }
 
   }

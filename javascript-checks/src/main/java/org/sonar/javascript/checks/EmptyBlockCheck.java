@@ -49,7 +49,7 @@ public class EmptyBlockCheck extends BaseTreeVisitor {
   @Override
   public void visitBlock(BlockTree tree) {
     if (tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
     super.visitBlock(tree);
   }

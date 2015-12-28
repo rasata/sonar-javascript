@@ -87,7 +87,7 @@ public class FunctionNameCheck extends BaseTreeVisitor {
       String name = tree instanceof IdentifierTree ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 
       if (!pattern.matcher(name).matches()) {
-        getContext().addIssue(this, tree, String.format(MESSAGE, name, format));
+        addLineIssue(this, tree, String.format(MESSAGE, name, format));
       }
     }
   }

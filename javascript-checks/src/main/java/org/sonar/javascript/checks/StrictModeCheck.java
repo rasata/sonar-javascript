@@ -48,7 +48,7 @@ public class StrictModeCheck extends BaseTreeVisitor {
       String value = ((LiteralTree) tree.expression()).value();
 
       if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(this, tree, MESSAGE);
       }
     }
 

@@ -44,7 +44,7 @@ public class ParseIntCallWithoutBaseCheck extends BaseTreeVisitor {
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (isParseIntCall(tree.callee()) && tree.arguments().parameters().size() == 1) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
     super.visitCallExpression(tree);
   }

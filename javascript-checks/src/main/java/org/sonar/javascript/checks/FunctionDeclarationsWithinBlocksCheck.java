@@ -51,7 +51,7 @@ public class FunctionDeclarationsWithinBlocksCheck extends BaseTreeVisitor {
     for (StatementTree stmt : tree.statements()) {
 
       if (stmt.is(Kind.FUNCTION_DECLARATION)) {
-        getContext().addIssue(this, stmt, MESSAGE);
+        addLineIssue(this, stmt, MESSAGE);
       }
     }
 

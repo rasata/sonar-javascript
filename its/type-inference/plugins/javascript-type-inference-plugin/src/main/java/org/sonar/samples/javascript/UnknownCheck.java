@@ -43,7 +43,7 @@ public class UnknownCheck extends BaseTreeVisitor {
         for (Type type : s.types()) {
 
           if (type.kind() == Type.Kind.UNKNOWN) {
-            getContext().addIssue(this, getSymbolReference(s), String.format("\"%s\"  =>  type %s  -  within %s.", s.name(), type.kind(), s.types().toString()));
+            addLineIssue(this, getSymbolReference(s), String.format("\"%s\"  =>  type %s  -  within %s.", s.name(), type.kind(), s.types().toString()));
             TypeStatistics.increaseUnknown();
           }
         }

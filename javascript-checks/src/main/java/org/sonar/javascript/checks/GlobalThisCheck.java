@@ -64,7 +64,7 @@ public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       if (((MemberExpressionTree) tree).object().is(Tree.Kind.THIS) && scopeLevel == 0) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(this, tree, MESSAGE);
       }
       return;
     }

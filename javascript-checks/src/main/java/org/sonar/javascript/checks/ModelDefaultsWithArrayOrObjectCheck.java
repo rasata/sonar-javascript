@@ -53,7 +53,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
         PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");
 
         if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL) && hasObjectOrArrayAttribute((ObjectLiteralTree) defaultsProp.value())) {
-          getContext().addIssue(this, defaultsProp, MESSAGE);
+          addLineIssue(this, defaultsProp, MESSAGE);
         }
       }
     }

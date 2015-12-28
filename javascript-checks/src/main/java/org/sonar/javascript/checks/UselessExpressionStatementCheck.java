@@ -48,11 +48,11 @@ public class UselessExpressionStatementCheck extends BaseTreeVisitor {
     Tree expression = tree.expression();
 
     if (expression.is(Kind.EQUAL_TO)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     if (expression.is(Kind.STRING_LITERAL) && !isUseStrictDirective((LiteralTree) expression)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);

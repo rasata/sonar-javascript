@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -109,7 +110,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     for (Entry entry : duplications.values()) {
       if (entry.count > threshold) {
         String message = String.format(MESSAGE, entry.literalTree.value(), entry.count);
-        getContext().addIssue(this, entry.literalTree, message, (double) entry.count - threshold);
+        getContext().addIssue(new LineIssue(this, entry.literalTree, message).cost((double) entry.count - threshold));
       }
     }
   }

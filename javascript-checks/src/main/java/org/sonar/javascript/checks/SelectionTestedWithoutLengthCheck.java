@@ -44,7 +44,7 @@ public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
     if (condition.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT)) {
-      getContext().addIssue(this, condition, MESSAGE);
+      addLineIssue(this, condition, MESSAGE);
     }
     super.visitIfStatement(tree);
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -30,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -64,11 +63,10 @@ public class StringsComparisonCheck extends BaseTreeVisitor {
 
   private void raiseIssue(BinaryExpressionTree tree) {
     String message = String.format(MESSAGE, tree.operator().text());
-    List<IssueLocation> secondaryLocations = ImmutableList.of(
-      new IssueLocation(tree.leftOperand()),
-      new IssueLocation(tree.rightOperand())
-    );
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), secondaryLocations, null);
+    PreciseIssue issue = new PreciseIssue(this, new IssueLocation(tree.operator(), message))
+      .secondaryLocation(new IssueLocation(tree.leftOperand()))
+      .secondaryLocation(new IssueLocation(tree.rightOperand()));
+    getContext().addIssue(issue);
   }
 
   private static boolean isString(ExpressionTree expression) {

@@ -56,7 +56,7 @@ public class ForInCheck extends BaseTreeVisitor {
     }
 
     if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitForInStatement(tree);

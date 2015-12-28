@@ -109,6 +109,11 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   }
 
   @Override
+  public void addLineIssue(JavaScriptCheck check, Tree tree, String message) {
+    getContext().addIssue(new LineIssue(check, tree, message));
+  }
+
+  @Override
   public void scanFile(TreeVisitorContext context) {
     this.context = context;
     scan(context.getTopTree());

@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -79,7 +80,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
         if (usages.get(i).isDeclaration()) {
           IssueLocation primaryLocation = new IssueLocation(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()));
           IssueLocation secondaryLocation = new IssueLocation(usages.get(i).identifierTree(), "Declaration");
-          getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
+          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
           return;
         }
       }

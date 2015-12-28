@@ -59,7 +59,7 @@ public class ReturnInSetterCheck extends BaseTreeVisitor {
     public void visitReturnStatement(ReturnStatementTree tree) {
       if (tree.expression() != null) {
         ReturnInSetterCheck check = ReturnInSetterCheck.this;
-        check.getContext().addIssue(check, tree, MESSAGE);
+        check.addLineIssue(check, tree, MESSAGE);
       }
       super.visitReturnStatement(tree);
     }

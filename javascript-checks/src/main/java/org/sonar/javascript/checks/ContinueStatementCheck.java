@@ -40,7 +40,7 @@ public class ContinueStatementCheck extends BaseTreeVisitor {
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(this, tree, MESSAGE);
   }
 
 }

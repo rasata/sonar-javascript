@@ -49,7 +49,7 @@ public class ConstructorFunctionsForSideEffectsCheck extends BaseTreeVisitor {
     Tree expression = tree.expression();
     if (expression.is(Kind.NEW_EXPRESSION)) {
       String message = String.format(MESSAGE, CheckUtils.asString(((NewExpressionTree) expression).expression()));
-      getContext().addIssue(this, expression, message);
+      addLineIssue(this, expression, message);
     }
 
     super.visitExpressionStatement(tree);

@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -109,7 +110,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            getContext().addIssue(this, trivia.line() + lineOffset, MESSAGE);
+            getContext().addIssue(new LineIssue(this, trivia.line() + lineOffset, MESSAGE));
             break;
           }
         }

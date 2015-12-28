@@ -47,7 +47,7 @@ public class PrimitiveWrappersCheck extends BaseTreeVisitor {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     if (WRAPPERS.contains(CheckUtils.asString(tree.expression()))) {
-      getContext().addIssue(this, tree.expression(), MESSAGE);
+      addLineIssue(this, tree.expression(), MESSAGE);
     }
 
     super.visitNewExpression(tree);

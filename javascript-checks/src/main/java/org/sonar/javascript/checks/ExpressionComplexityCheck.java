@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
@@ -155,16 +156,17 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
   }
 
   private void addIssue(Tree expression, List<SyntaxToken> complexityOperators) {
-    List<IssueLocation> secondaryLocations = new ArrayList<>();
-    for (SyntaxToken complexityOperator : complexityOperators) {
-      secondaryLocations.add(new IssueLocation(complexityOperator, "+1"));
-    }
-
     int complexity = complexityOperators.size();
     String message = String.format(MESSAGE, complexity, max);
-    double cost = (double) (complexity - max);
 
-    getContext().addIssue(this, new IssueLocation(expression, message), secondaryLocations, cost);
+    PreciseIssue issue = new PreciseIssue(this, new IssueLocation(expression, message));
+    for (SyntaxToken complexityOperator : complexityOperators) {
+      issue.secondaryLocation(new IssueLocation(complexityOperator, "+1"));
+    }
+
+    issue.cost ((double) complexity - max);
+
+    getContext().addIssue(issue);
   }
 
 }

@@ -52,7 +52,7 @@ public class LabelPlacementCheck extends BaseTreeVisitor {
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     if (!tree.statement().is(ITERATION_STATEMENTS)) {
-      getContext().addIssue(this, tree, String.format(MESSAGE, tree.label().name()));
+      addLineIssue(this, tree, String.format(MESSAGE, tree.label().name()));
     }
 
     super.visitLabelledStatement(tree);

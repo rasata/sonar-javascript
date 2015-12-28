@@ -44,7 +44,7 @@ public class EvalCheck extends BaseTreeVisitor {
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.callee() instanceof IdentifierTree && "eval".equals(((IdentifierTree) tree.callee()).name())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitCallExpression(tree);

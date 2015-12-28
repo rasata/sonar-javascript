@@ -50,7 +50,7 @@ public class PostMessageCheck extends BaseTreeVisitor {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
       boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
       if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)) {
-        getContext().addIssue(this, callee.property(), MESSAGE);
+        addLineIssue(this, callee.property(), MESSAGE);
       }
     }
 

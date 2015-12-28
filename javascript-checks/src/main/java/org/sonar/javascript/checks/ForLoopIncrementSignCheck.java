@@ -95,7 +95,7 @@ public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
   private void addIssue(Tree tree, ForLoopIncrement loopIncrement, String adjective) {
     String identifier = loopIncrement.identifier.name();
     String message = String.format(MESSAGE, identifier, adjective);
-    getContext().addIssue(this, tree, message);
+    addLineIssue(this, tree, message);
   }
 
   private static class ForLoopIncrement {

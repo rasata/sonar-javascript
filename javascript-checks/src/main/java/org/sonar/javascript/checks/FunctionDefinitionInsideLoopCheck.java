@@ -71,7 +71,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseTreeVisit
 
     } else {
       if (isInLoop()) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(this, tree, MESSAGE);
       }
       enterScope();
     }

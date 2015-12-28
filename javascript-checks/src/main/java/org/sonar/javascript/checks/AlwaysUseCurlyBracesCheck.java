@@ -78,7 +78,7 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
       String blockName = ((JavaScriptTree) tree).getFirstToken().text();
-      getContext().addIssue(this, tree, String.format(MESSAGE, blockName));
+      addLineIssue(this, tree, String.format(MESSAGE, blockName));
     }
   }
 

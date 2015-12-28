@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -121,7 +122,12 @@ public class MultilineBlockCurlyBraceCheck extends BaseTreeVisitor {
 
     int nbLines = line(lastStatementInPseudoBlock) - line(firstStatementInPseudoBlock) + 1;
     IssueLocation location = new IssueLocation(statement, String.format(primaryMessage, nbLines));
-    getContext().addIssue(this, location, secondaryLocations, null);
+    PreciseIssue issue = new PreciseIssue(this, location);
+    for (IssueLocation secondaryLocation : secondaryLocations) {
+      issue.secondaryLocation(secondaryLocation);
+    }
+
+    getContext().addIssue(issue);
   }
 
   private static int column(Tree tree) {

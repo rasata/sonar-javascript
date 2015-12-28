@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,13 +34,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.Issue.LegacyIssue;
-import org.sonar.plugins.javascript.api.visitors.Issue.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
@@ -240,6 +239,11 @@ public class JavaScriptCheckVerifierTest {
     }
 
     @Override
+    public void addLineIssue(JavaScriptCheck check, Tree tree, String message) {
+      throw new NotImplementedException();
+    }
+
+    @Override
     public void scanFile(TreeVisitorContext context) {
       for (TestIssue issue : issues) {
         log(issue, context);
@@ -259,11 +263,11 @@ public class JavaScriptCheckVerifierTest {
         context.addIssue(preciseIssue);
 
       } else {
-        LegacyIssue legacyIssue = new LegacyIssue(this, issue.line(), issue.message());
+        LineIssue lineIssue = new LineIssue(this, issue.line(), issue.message());
         if (issue.effortToFix() != null) {
-          legacyIssue.cost(issue.effortToFix());
+          lineIssue.cost(issue.effortToFix());
         }
-        context.addIssue(legacyIssue);
+        context.addIssue(lineIssue);
       }
     }
 

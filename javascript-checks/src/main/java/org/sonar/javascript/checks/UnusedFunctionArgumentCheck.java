@@ -114,7 +114,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
     if (!unusedArguments.isEmpty()) {
       String ending = unusedArguments.size() == 1 ? "" : "s";
-      getContext().addIssue(this, scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+      addLineIssue(this, scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
     }
   }
 

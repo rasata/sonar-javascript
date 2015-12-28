@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
@@ -189,11 +190,12 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
     int jumpStatementNumber = jumps.size();
     if (jumpStatementNumber > 1) {
       IssueLocation primaryLocation = new IssueLocation(loopKeyword, MESSAGE);
-      List<IssueLocation> secondaryLocations = new ArrayList<>();
+      PreciseIssue issue = new PreciseIssue(this, primaryLocation)
+        .cost((double) jumpStatementNumber - 1);
       for (Tree jump : jumps) {
-        secondaryLocations.add(new IssueLocation(jump));
+        issue.secondaryLocation(new IssueLocation(jump));
       }
-      getContext().addIssue(this, primaryLocation, secondaryLocations, (double) jumpStatementNumber - 1);
+      getContext().addIssue(issue);
     }
   }
 

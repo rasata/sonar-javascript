@@ -55,7 +55,7 @@ public class ConditionalCommentCheck extends SubscriptionBaseTreeVisitor {
     for (SyntaxTrivia trivia : token.trivias()) {
       String comment = trivia.text();
       if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
-        getContext().addIssue(this, trivia, MESSAGE);
+        addLineIssue(this, trivia, MESSAGE);
       }
     }
   }

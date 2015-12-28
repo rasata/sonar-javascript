@@ -47,7 +47,7 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (tree.is(Tree.Kind.DELETE) && isArrayElement(tree.expression())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
     super.visitUnaryExpression(tree);
   }

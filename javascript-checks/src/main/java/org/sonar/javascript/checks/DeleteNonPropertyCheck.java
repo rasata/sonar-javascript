@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -33,6 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -86,6 +86,6 @@ public class DeleteNonPropertyCheck extends BaseTreeVisitor {
   }
 
   private void raiseIssue(UnaryExpressionTree tree) {
-    getContext().addIssue(this, new IssueLocation(tree, MESSAGE), Collections.<IssueLocation>emptyList(), null);
+    getContext().addIssue(new PreciseIssue(this, new IssueLocation(tree, MESSAGE)));
   }
 }

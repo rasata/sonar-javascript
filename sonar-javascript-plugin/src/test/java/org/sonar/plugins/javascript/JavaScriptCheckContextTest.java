@@ -34,7 +34,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.utils.IssuableMock;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -73,7 +73,7 @@ public class JavaScriptCheckContextTest {
 
   @Test
   public void addIssue_tree() throws Exception {
-    context.addIssue(new LegacyIssue(checkMock, tree, ISSUE_MESSAGE));
+    context.addIssue(new LineIssue(checkMock, tree, ISSUE_MESSAGE));
 
     assertThat(issuable.issues()).hasSize(1);
     assertIssueProperties(issuable.issues().get(0), tree.line(), null);
@@ -81,7 +81,7 @@ public class JavaScriptCheckContextTest {
 
   @Test
   public void addIssue_line() throws Exception {
-    context.addIssue(new LegacyIssue(checkMock, ISSUE_LINE, ISSUE_MESSAGE));
+    context.addIssue(new LineIssue(checkMock, ISSUE_LINE, ISSUE_MESSAGE));
 
     assertThat(issuable.issues()).hasSize(1);
     assertIssueProperties(issuable.issues().get(0), ISSUE_LINE, null);
@@ -97,7 +97,7 @@ public class JavaScriptCheckContextTest {
 
   @Test
   public void addIssue_tree_with_cost() throws Exception {
-    context.addIssue(new LegacyIssue(checkMock, tree, ISSUE_MESSAGE).cost(10.));
+    context.addIssue(new LineIssue(checkMock, tree, ISSUE_MESSAGE).cost(10.));
 
     assertThat(issuable.issues()).hasSize(1);
     assertIssueProperties(issuable.issues().get(0), tree.line(), 10D);
@@ -105,7 +105,7 @@ public class JavaScriptCheckContextTest {
 
   @Test
   public void addIssue_line_with_cost() throws Exception {
-    context.addIssue(new LegacyIssue(checkMock, ISSUE_LINE, ISSUE_MESSAGE).cost(10.));
+    context.addIssue(new LineIssue(checkMock, ISSUE_LINE, ISSUE_MESSAGE).cost(10.));
 
     assertThat(issuable.issues()).hasSize(1);
     assertIssueProperties(issuable.issues().get(0), ISSUE_LINE, 10D);

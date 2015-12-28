@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -31,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -74,7 +74,7 @@ public class TrailingCommaCheck extends BaseTreeVisitor {
   }
 
   private void raiseIssue(Tree trailingComma) {
-    getContext().addIssue(this, new IssueLocation(trailingComma, MESSAGE), ImmutableList.<IssueLocation>of(), null);
+    getContext().addIssue(new PreciseIssue(this, new IssueLocation(trailingComma, MESSAGE)));
   }
 
 }

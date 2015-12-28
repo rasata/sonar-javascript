@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -30,6 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -54,7 +54,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
       String message = String.format(MESSAGE, tree.operator().text());
       IssueLocation primary = new IssueLocation(tree.rightOperand(), message);
       IssueLocation secondary = new IssueLocation(tree.leftOperand());
-      getContext().addIssue(this, primary, ImmutableList.of(secondary), null);
+      getContext().addIssue(new PreciseIssue(this, primary).secondaryLocation(secondary));
     }
 
     super.visitBinaryExpression(tree);

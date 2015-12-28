@@ -66,6 +66,6 @@ public class UndefinedAssignmentCheck extends BaseTreeVisitor {
   }
 
   private void reportIssue(Tree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(this, tree, MESSAGE);
   }
 }

@@ -38,7 +38,7 @@ public class BaseTreeVisitorCheck extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    getContext().addIssue(this, tree, "Function expression.");
+    addLineIssue(this, tree, "Function expression.");
     super.visitFunctionExpression(tree);
   }
 

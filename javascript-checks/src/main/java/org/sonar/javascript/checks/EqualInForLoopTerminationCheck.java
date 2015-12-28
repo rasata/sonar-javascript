@@ -76,7 +76,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
 
   private void addIssue(ExpressionTree condition) {
     String message = String.format(MESSAGE, ((BinaryExpressionTree) condition).operator().text());
-    getContext().addIssue(this, condition, message);
+    addLineIssue(this, condition, message);
   }
 
   private static boolean isEquality(ExpressionTree condition) {

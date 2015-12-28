@@ -45,10 +45,10 @@ public class EqEqEqCheck extends BaseTreeVisitor {
     if (!isNullLiteral(tree.leftOperand()) && !isNullLiteral(tree.rightOperand())) {
 
       if (tree.is(Tree.Kind.EQUAL_TO)) {
-        getContext().addIssue(this, tree.operator(), "Replace \"==\" with \"===\".");
+        addLineIssue(this, tree.operator(), "Replace \"==\" with \"===\".");
 
       } else if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
-        getContext().addIssue(this, tree.operator(), "Replace \"!=\" with \"!==\".");
+        addLineIssue(this, tree.operator(), "Replace \"!=\" with \"!==\".");
       }
     }
 

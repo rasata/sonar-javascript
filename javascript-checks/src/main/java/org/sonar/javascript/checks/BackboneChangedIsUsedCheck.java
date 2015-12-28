@@ -45,7 +45,7 @@ public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((DotMemberExpressionTree) tree.variable())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitAssignmentExpression(tree);

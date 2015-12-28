@@ -89,7 +89,7 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
     if (expression.is(Kind.BOOLEAN_LITERAL)) {
       String message = String.format(MESSAGE, ((LiteralTree) expression).value());
-      getContext().addIssue(this, expression, message);
+      addLineIssue(this, expression, message);
     }
   }
 

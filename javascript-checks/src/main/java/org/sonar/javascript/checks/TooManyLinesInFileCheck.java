@@ -28,6 +28,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -62,7 +63,7 @@ public class TooManyLinesInFileCheck extends SubscriptionBaseTreeVisitor {
     int lines = token.line();
 
     if (lines > maximum) {
-      getContext().addFileIssue(this, String.format(MESSAGE, getContext().getFile().getName(), lines, maximum));
+      getContext().addIssue(new FileIssue(this, String.format(MESSAGE, getContext().getFile().getName(), lines, maximum)));
     }
   }
 

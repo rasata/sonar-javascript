@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -116,12 +117,12 @@ public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
 
   private void addIssue(List<StatementTree> statementsAtLine) {
     IssueLocation primaryLocation = new IssueLocation(statementsAtLine.get(1), MESSAGE);
-    List<IssueLocation> secondaryLocations = new ArrayList<>();
+    PreciseIssue issue = new PreciseIssue(this, primaryLocation);
 
     for (int i = 2; i < statementsAtLine.size(); i++) {
-      secondaryLocations.add(new IssueLocation(statementsAtLine.get(i)));
+      issue.secondaryLocation(new IssueLocation(statementsAtLine.get(i)));
     }
 
-    getContext().addIssue(this, primaryLocation, secondaryLocations, null);
+    getContext().addIssue(issue);
   }
 }

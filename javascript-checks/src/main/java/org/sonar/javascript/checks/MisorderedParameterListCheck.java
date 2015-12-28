@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -65,8 +65,8 @@ public class MisorderedParameterListCheck extends BaseTreeVisitor {
         List<String> parameterNames = names(functionDeclaration.parameters());
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
           IssueLocation primaryLocation = new IssueLocation(callExpression.arguments(), message(functionDeclaration));
-          List<IssueLocation> secondaryLocations = ImmutableList.of(new IssueLocation(functionDeclaration.parameters()));
-          getContext().addIssue(this, primaryLocation, secondaryLocations, null);
+          IssueLocation secondaryLocation = new IssueLocation(functionDeclaration.parameters());
+          getContext().addIssue(new PreciseIssue(this, primaryLocation).secondaryLocation(secondaryLocation));
         }
       }
     }

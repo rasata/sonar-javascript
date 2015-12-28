@@ -44,7 +44,7 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends BaseTreeVisitor {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.condition().is(Kind.BOOLEAN_LITERAL)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitIfStatement(tree);

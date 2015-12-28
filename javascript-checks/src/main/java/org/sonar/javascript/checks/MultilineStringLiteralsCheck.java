@@ -44,7 +44,7 @@ public class MultilineStringLiteralsCheck extends BaseTreeVisitor {
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Kind.STRING_LITERAL) && tree.value().contains("\n")) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
   }
 

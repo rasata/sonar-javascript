@@ -33,7 +33,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
@@ -42,11 +41,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
-import org.sonar.plugins.javascript.api.visitors.Issue.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.Issue.LegacyIssue;
-import org.sonar.plugins.javascript.api.visitors.Issue.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
@@ -244,9 +243,9 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       if (issue instanceof FileIssue) {
         throw new UnsupportedOperationException();
 
-      } else if (issue instanceof LegacyIssue) {
-        LegacyIssue legacyIssue = (LegacyIssue) issue;
-        testIssue = issue(legacyIssue.message(), legacyIssue.line());
+      } else if (issue instanceof LineIssue) {
+        LineIssue lineIssue = (LineIssue) issue;
+        testIssue = issue(lineIssue.message(), lineIssue.line());
 
       } else {
         PreciseIssue preciseIssue = (PreciseIssue)issue;
@@ -269,10 +268,6 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       }
 
       issues.add(testIssue);
-    }
-
-    private static int getLine(Tree tree) {
-      return ((JavaScriptTree) tree).getLine();
     }
 
     @Override

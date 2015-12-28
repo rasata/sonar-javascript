@@ -31,6 +31,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -77,7 +78,7 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
     }
 
     if (!matches(expectedLines, lines)) {
-      context.addFileIssue(this, MESSAGE);
+      context.addIssue(new FileIssue(this, MESSAGE));
     }
   }
 

@@ -72,7 +72,7 @@ public class ExcessiveParameterListCheck extends BaseTreeVisitor {
     Integer numberOfParameters = tree.parameters().size();
 
     if (numberOfParameters > maximumFunctionParameters) {
-      getContext().addIssue(this,
+      addLineIssue(this,
         // Report issue on the line of the first parameter
         tree.parameters().get(0),
         "Function has " + numberOfParameters + " parameters which is greater than " + maximumFunctionParameters + " authorized.");

@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import java.util.regex.Pattern;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -35,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -91,7 +91,7 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
   }
 
   private void addIssue(JavaScriptCheck check, String message, IdentifierTree identifier) {
-    getContext().addIssue(check, new IssueLocation(identifier, message), ImmutableList.<IssueLocation>of(), null);
+    getContext().addIssue(new PreciseIssue(check, new IssueLocation(identifier, message)));
   }
 
 }

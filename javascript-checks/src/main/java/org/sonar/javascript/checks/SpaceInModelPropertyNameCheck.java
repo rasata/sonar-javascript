@@ -103,7 +103,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   private void checkString(ExpressionTree key) {
     if (key.is(Kind.STRING_LITERAL) && StringUtils.contains(((LiteralTree) key).value(), ' ')) {
-      getContext().addIssue(this, key, MESSAGE);
+      addLineIssue(this, key, MESSAGE);
     }
   }
 

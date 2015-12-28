@@ -49,7 +49,7 @@ public class ArrayAndObjectConstructorsCheck extends BaseTreeVisitor {
     if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String next = ((IdentifierTree) expression).name();
       if ("Array".equals(next) || "Object".equals(next)) {
-        getContext().addIssue(this, tree, String.format(MESSAGE, next));
+        addLineIssue(this, tree, String.format(MESSAGE, next));
       }
     }
     super.visitNewExpression(tree);

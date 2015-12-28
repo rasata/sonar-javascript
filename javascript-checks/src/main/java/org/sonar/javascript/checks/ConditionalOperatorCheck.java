@@ -40,7 +40,7 @@ public class ConditionalOperatorCheck extends BaseTreeVisitor {
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    getContext().addIssue(this, tree.query(), MESSAGE);
+    addLineIssue(this, tree.query(), MESSAGE);
     super.visitConditionalExpression(tree);
   }
 

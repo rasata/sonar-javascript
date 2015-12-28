@@ -26,14 +26,14 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 
-public class LegacyIssue implements Issue {
+public class LineIssue implements Issue {
 
   private JavaScriptCheck check;
   private Double cost;
   private String message;
   private int line;
 
-  public LegacyIssue(JavaScriptCheck check, int line, String message) {
+  public LineIssue(JavaScriptCheck check, int line, String message) {
     Preconditions.checkArgument(line > 0);
     this.check = check;
     this.message = message;
@@ -41,7 +41,7 @@ public class LegacyIssue implements Issue {
     this.cost = null;
   }
 
-  public LegacyIssue(JavaScriptCheck check, Tree tree, String message) {
+  public LineIssue(JavaScriptCheck check, Tree tree, String message) {
     this.check = check;
     this.message = message;
     this.line = ((JavaScriptTree) tree).getLine();

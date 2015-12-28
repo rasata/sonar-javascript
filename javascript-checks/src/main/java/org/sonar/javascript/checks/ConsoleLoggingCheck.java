@@ -59,7 +59,7 @@ public class ConsoleLoggingCheck extends SubscriptionBaseTreeVisitor {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) callExpression.callee();
 
       if (isCalleeConsoleLogging(callee)) {
-        addIssue(tree, MESSAGE);
+        addLineIssue(this, tree, MESSAGE);
       }
     }
 

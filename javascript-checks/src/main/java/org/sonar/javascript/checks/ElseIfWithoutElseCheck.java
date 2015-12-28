@@ -46,7 +46,7 @@ public class ElseIfWithoutElseCheck extends BaseTreeVisitor {
       IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
 
       if (!ifStmt.hasElse()) {
-        getContext().addIssue(this, ifStmt, MESSAGE);
+        addLineIssue(this, ifStmt, MESSAGE);
       }
 
     }

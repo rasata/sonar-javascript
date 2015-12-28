@@ -83,7 +83,7 @@ public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
   private void addKey(Set<String> keys, String key, Tree property) {
     if (keys.contains(EscapeUtils.unescape(key))) {
-      getContext().addIssue(this, property, String.format(MESSAGE, key));
+      addLineIssue(this, property, String.format(MESSAGE, key));
     } else {
       keys.add(key);
     }

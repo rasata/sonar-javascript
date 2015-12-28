@@ -66,7 +66,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
         String updated = expressionList(updatedExpressions);
         String tested = expressionList(conditionVisitor.testedExpressions);
         String message = String.format(MESSAGE, tested, updated);
-        getContext().addIssue(this, forStatement, message);
+        addLineIssue(this, forStatement, message);
       }
     }
     super.visitForStatement(forStatement);

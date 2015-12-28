@@ -32,7 +32,7 @@ import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -69,7 +69,7 @@ public class TestCheckContext implements TreeVisitorContext {
       LOG.error(e.getMessage());
 
       if ("ParsingErrorCheck".equals(check.getClass().getSimpleName())) {
-        this.addIssue(new LegacyIssue(null, e.getLine(), e.getMessage()));
+        this.addIssue(new LineIssue(null, e.getLine(), e.getMessage()));
       }
     }
 
@@ -107,10 +107,10 @@ public class TestCheckContext implements TreeVisitorContext {
       FileIssue fileIssue = (FileIssue)issue;
       checkMessage = new CheckMessage(fileIssue.check(), fileIssue.message());
 
-    } else if (issue instanceof LegacyIssue) {
-      LegacyIssue legacyIssue = (LegacyIssue)issue;
-      checkMessage = new CheckMessage(legacyIssue.check(), legacyIssue.message());
-      checkMessage.setLine(legacyIssue.line());
+    } else if (issue instanceof LineIssue) {
+      LineIssue lineIssue = (LineIssue)issue;
+      checkMessage = new CheckMessage(lineIssue.check(), lineIssue.message());
+      checkMessage.setLine(lineIssue.line());
 
     } else {
       throw new IllegalStateException("To test rules which provide precise issue locations use JavaScriptCheckVerifier#verify()");

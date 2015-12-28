@@ -58,7 +58,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     List<ExpressionTree> expressions = getAllSubExpressions(tree);
 
     String message = expressions.size() > 2 ? MESSAGE_MANY_COMMAS : MESSAGE_ONE_COMMA;
-    getContext().addIssue(this, getFirstComma(tree), message);
+    addLineIssue(this, getFirstComma(tree), message);
 
     for (ExpressionTree expression : expressions) {
       super.scan(expression);

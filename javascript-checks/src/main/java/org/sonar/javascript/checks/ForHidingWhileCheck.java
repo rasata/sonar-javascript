@@ -43,7 +43,7 @@ public class ForHidingWhileCheck extends BaseTreeVisitor {
   @Override
   public void visitForStatement(ForStatementTree tree) {
     if (tree.init() == null && tree.update() == null) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(this, tree, MESSAGE);
     }
 
     super.visitForStatement(tree);

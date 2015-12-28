@@ -63,7 +63,7 @@ public class UselessStringOperationCheck extends SubscriptionBaseTreeVisitor {
         MemberExpressionTree memberExpression = (MemberExpressionTree) callee;
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)) {
           String variableName = CheckUtils.asString(memberExpression.object());
-          addIssue(tree, String.format(MESSAGE, variableName));
+          addLineIssue(this, tree, String.format(MESSAGE, variableName));
         }
       }
     }

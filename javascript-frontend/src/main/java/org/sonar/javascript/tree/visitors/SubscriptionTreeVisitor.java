@@ -27,6 +27,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
@@ -102,4 +103,8 @@ public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
     }
   }
 
+  @Override
+  public void addLineIssue(JavaScriptCheck check, Tree tree, String message) {
+    getContext().addIssue(new LineIssue(check, tree, message));
+  }
 }

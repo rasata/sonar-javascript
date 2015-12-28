@@ -42,7 +42,7 @@ public class WithStatementCheck extends BaseTreeVisitor {
 
   @Override
   public void visitWithStatement(WithStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(this, tree, MESSAGE);
 
     super.visitWithStatement(tree);
   }

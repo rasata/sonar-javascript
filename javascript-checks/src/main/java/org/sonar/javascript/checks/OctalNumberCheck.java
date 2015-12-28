@@ -53,7 +53,7 @@ public class OctalNumberCheck extends BaseTreeVisitor {
           return;
         }
         if (newValue > 9) {
-          getContext().addIssue(this, tree, String.format(MESSAGE, value, newValue));
+          addLineIssue(this, tree, String.format(MESSAGE, value, newValue));
         }
       }
     }

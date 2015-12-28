@@ -99,7 +99,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
       enterBlock();
 
     } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
-      getContext().addIssue(this, tree, String.format(MESSAGE, jumpName));
+      addLineIssue(this, tree, String.format(MESSAGE, jumpName));
       updateStateTo(false);
     }
 

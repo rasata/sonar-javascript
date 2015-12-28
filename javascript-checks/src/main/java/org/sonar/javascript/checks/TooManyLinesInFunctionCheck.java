@@ -93,7 +93,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseTreeVisitor {
     int nbLines = getNumberOfLine(tree);
     if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
       String message = String.format(MESSAGE, nbLines, max);
-      getContext().addIssue(this, tree, message);
+      addLineIssue(this, tree, message);
     }
     clearCheckState();
   }
