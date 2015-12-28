@@ -19,50 +19,57 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
+import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 
-public class IssueLocation {
+public class LegacyIssue implements Issue {
 
-  private final SyntaxToken firstToken;
-  private final SyntaxToken lastToken;
-  private final String message;
+  private JavaScriptCheck check;
+  private Double cost;
+  private String message;
+  private int line;
 
-  public IssueLocation(Tree tree, @Nullable String message) {
-    this(tree, tree, message);
-  }
-
-  public IssueLocation(Tree firstTree, Tree lastTree, @Nullable String message) {
-    this.firstToken = ((JavaScriptTree) firstTree).getFirstToken();
-    this.lastToken = ((JavaScriptTree) lastTree).getLastToken();
+  public LegacyIssue(JavaScriptCheck check, int line, String message) {
+    Preconditions.checkArgument(line > 0);
+    this.check = check;
     this.message = message;
+    this.line = line;
+    this.cost = null;
   }
 
-  public IssueLocation(Tree tree) {
-    this(tree, null);
+  public LegacyIssue(JavaScriptCheck check, Tree tree, String message) {
+    this.check = check;
+    this.message = message;
+    this.line = ((JavaScriptTree) tree).getLine();
+    this.cost = null;
   }
 
-  @Nullable
   public String message() {
     return message;
   }
 
-  public int startLine() {
-    return firstToken.line();
+  public int line() {
+    return line;
   }
 
-  public int startLineOffset() {
-    return firstToken.column();
+  @Override
+  public JavaScriptCheck check() {
+    return check;
   }
 
-  public int endLine() {
-    return lastToken.line();
+  @Nullable
+  @Override
+  public Double cost() {
+    return cost;
   }
 
-  public int endLineOffset() {
-    return lastToken.column() + lastToken.text().length();
+  @Override
+  public Issue cost(double cost) {
+    this.cost = cost;
+    return this;
   }
-
 }

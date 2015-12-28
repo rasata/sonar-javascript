@@ -30,13 +30,14 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.api.CheckMessage;
 
@@ -68,7 +69,7 @@ public class TestCheckContext implements TreeVisitorContext {
       LOG.error(e.getMessage());
 
       if ("ParsingErrorCheck".equals(check.getClass().getSimpleName())) {
-        this.addIssue(null, e.getLine(), e.getMessage());
+        this.addIssue(new LegacyIssue(null, e.getLine(), e.getMessage()));
       }
     }
 
@@ -80,54 +81,8 @@ public class TestCheckContext implements TreeVisitorContext {
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message) {
-    commonAddIssue(check, getLine(tree), message, -1);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, int line, String message) {
-    commonAddIssue(check, line, message, -1);
-  }
-
-  @Override
-
-  public void addFileIssue(JavaScriptCheck check, String message) {
-    commonAddIssue(check, -1, message, -1);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost) {
-    commonAddIssue(check, getLine(tree), message, cost);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
-    commonAddIssue(check, line, message, cost);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-    throw new UnsupportedOperationException("To test rules which provide 'secondary locations' use JavaScriptCheckVerifier#verify()");
-  }
-
-  @Override
   public File getFile() {
     return file;
-  }
-
-  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost) {
-    CheckMessage issue = new CheckMessage(check, message);
-    if (cost >= 0) {
-      issue.setCost(cost);
-    }
-    if (line > 0) {
-      issue.setLine(line);
-    }
-    issues.add(issue);
-  }
-
-  private static int getLine(Tree tree) {
-    return ((JavaScriptTree) tree).getLine();
   }
 
   @Override
@@ -143,6 +98,29 @@ public class TestCheckContext implements TreeVisitorContext {
   @Override
   public int getComplexity(Tree tree) {
     return complexity.getComplexity(tree);
+  }
+
+  @Override
+  public void addIssue(Issue issue) {
+    CheckMessage checkMessage;
+    if (issue instanceof FileIssue) {
+      FileIssue fileIssue = (FileIssue)issue;
+      checkMessage = new CheckMessage(fileIssue.check(), fileIssue.message());
+
+    } else if (issue instanceof LegacyIssue) {
+      LegacyIssue legacyIssue = (LegacyIssue)issue;
+      checkMessage = new CheckMessage(legacyIssue.check(), legacyIssue.message());
+      checkMessage.setLine(legacyIssue.line());
+
+    } else {
+      throw new IllegalStateException("To test rules which provide precise issue locations use JavaScriptCheckVerifier#verify()");
+    }
+
+    if (issue.cost() != null) {
+      checkMessage.setCost(issue.cost());
+    }
+
+    issues.add(checkMessage);
   }
 
   public List<CheckMessage> getIssues() {

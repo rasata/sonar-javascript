@@ -19,10 +19,19 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
-@Beta
-public abstract class SubscriptionBaseTreeVisitor extends SubscriptionTreeVisitor {
+/**
+ * This interface is used to represent issue created by checks before feeding them to SonarQube.
+ */
+public interface Issue {
+
+  JavaScriptCheck check();
+
+  @Nullable
+  Double cost();
+
+  Issue cost(double cost);
 
 }

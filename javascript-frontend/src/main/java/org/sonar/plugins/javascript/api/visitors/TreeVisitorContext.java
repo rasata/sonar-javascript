@@ -21,8 +21,6 @@ package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
 import java.io.File;
-import java.util.List;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,54 +32,6 @@ public interface TreeVisitorContext {
    * @return the top tree node of the current file AST representation.
    */
   ScriptTree getTopTree();
-
-  /**
-   * Creates an issue.
-   *
-   * @param check   instance of the check that creates the issue.
-   * @param tree    the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
-   * @param message the issue message.
-   */
-  void addIssue(JavaScriptCheck check, Tree tree, String message);
-
-  /**
-   * Creates an issue.
-   *
-   * @param check   instance of the check that create the issue
-   * @param line    source line on which the issue should be raised
-   * @param message the issue message
-   */
-  void addIssue(JavaScriptCheck check, int line, String message);
-
-  /**
-   * Creates an issue.
-   *
-   * @param check   instance of the check that create the issue
-   * @param tree    the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
-   * @param message the issue message
-   * @param cost    specific remediation cost for the issue, used to compute the technical debt
-   */
-  void addIssue(JavaScriptCheck check, Tree tree, String message, double cost);
-
-  /**
-   * Creates an issue.
-   *
-   * @param check   instance of the check that create the issue
-   * @param line    source line on which the issue should be raised
-   * @param message the issue message
-   * @param cost    specific remediation cost for the issue, used to compute the technical debt
-   */
-  void addIssue(JavaScriptCheck check, int line, String message, double cost);
-
-  void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost);
-
-  /**
-   * Creates an issue at a file level.
-   *
-   * @param check   instance of the check that create the issue
-   * @param message the issue message
-   */
-  void addFileIssue(JavaScriptCheck check, String message);
 
   /**
    * @return the current file
@@ -103,4 +53,5 @@ public interface TreeVisitorContext {
 
   int getComplexity(Tree tree);
 
+  void addIssue(Issue issue);
 }

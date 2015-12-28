@@ -42,6 +42,10 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.Issue.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.Issue.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.Issue.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -50,7 +54,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
-  private final List<Issue> expectedIssues = new ArrayList<>();
+  private final List<TestIssue> expectedIssues = new ArrayList<>();
 
   public static void verify(JavaScriptCheck check, File file) {
     VerifierContext context = new VerifierContext(file);
@@ -60,10 +64,10 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   private void verify(VerifierContext context) {
     scanTree(context.getTopTree());
-    List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(context.getIssues());
-    Iterator<Issue> actualIssues = sortedIssues.iterator();
+    List<TestIssue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(context.getIssues());
+    Iterator<TestIssue> actualIssues = sortedIssues.iterator();
 
-    for (Issue expected : expectedIssues) {
+    for (TestIssue expected : expectedIssues) {
       if (actualIssues.hasNext()) {
         verifyIssue(expected, actualIssues.next());
       } else {
@@ -72,12 +76,12 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     }
 
     if (actualIssues.hasNext()) {
-      Issue issue = actualIssues.next();
+      TestIssue issue = actualIssues.next();
       throw new AssertionError("Unexpected issue at line " + issue.line() + ": \"" + issue.message() + "\"");
     }
   }
 
-  private void verifyIssue(Issue expected, Issue actual) {
+  private void verifyIssue(TestIssue expected, TestIssue actual) {
     if (actual.line() > expected.line()) {
       throw new AssertionError("Missing issue at line " + expected.line());
     }
@@ -118,7 +122,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       String marker = "Noncompliant";
 
       if (text.startsWith(marker)) {
-        Issue issue = issue(null, trivia.line());
+        TestIssue issue = issue(null, trivia.line());
         String paramsAndMessage = text.substring(marker.length()).trim();
 
         if (paramsAndMessage.startsWith("[[")) {
@@ -138,7 +142,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     }
   }
 
-  private void addParams(Issue issue, String params) {
+  private void addParams(TestIssue issue, String params) {
     for (String param : Splitter.on(';').split(params)) {
       int equalIndex = param.indexOf("=");
       if (equalIndex == -1) {
@@ -182,8 +186,8 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     return Integer.valueOf(shift);
   }
 
-  private static Issue issue(@Nullable String message, int lineNumber) {
-    return Issue.create(message, lineNumber);
+  private static TestIssue issue(@Nullable String message, int lineNumber) {
+    return TestIssue.create(message, lineNumber);
   }
 
   private static class VerifierContext implements TreeVisitorContext {
@@ -194,7 +198,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     private ComplexityVisitor complexityVisitor;
     private ScriptTree tree = null;
     private SymbolModel symbolModel = null;
-    private List<Issue> issues = new ArrayList<>();
+    private List<TestIssue> issues = new ArrayList<>();
 
     public VerifierContext(File file) {
       this.file = file;
@@ -210,60 +214,13 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
     }
 
-    public List<Issue> getIssues() {
+    public List<TestIssue> getIssues() {
       return issues;
     }
 
     @Override
     public ScriptTree getTopTree() {
       return tree;
-    }
-
-    @Override
-    public void addIssue(JavaScriptCheck check, Tree tree, String message) {
-      addIssue(check, getLine(tree), message);
-    }
-
-    @Override
-    public void addIssue(JavaScriptCheck check, int line, String message) {
-      add(issue(message, line));
-    }
-
-    @Override
-    public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost) {
-      addIssue(check, getLine(tree), message, cost);
-    }
-
-    @Override
-    public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
-      add(issue(message, line).effortToFix((int) cost));
-    }
-
-    @Override
-    public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-      int startColumn = location.startLineOffset() + 1;
-      int endColumn = location.endLineOffset() + 1;
-      List<Integer> secondaryLines = new ArrayList<>();
-      for (IssueLocation secondary : secondaryLocations) {
-        secondaryLines.add(secondary.startLine());
-      }
-      Issue issue = issue(location.message(), location.startLine())
-        .columns(startColumn, endColumn)
-        .endLine(location.endLine())
-        .secondary(secondaryLines);
-      if (cost != null) {
-        issue.effortToFix(cost.intValue());
-      }
-      add(issue);
-    }
-
-    @Override
-    public void addFileIssue(JavaScriptCheck check, String message) {
-      throw new UnsupportedOperationException();
-    }
-
-    private void add(Issue issue) {
-      issues.add(issue);
     }
 
     @Override
@@ -281,6 +238,39 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       return complexityVisitor.getComplexity(tree);
     }
 
+    @Override
+    public void addIssue(Issue issue) {
+      TestIssue testIssue;
+      if (issue instanceof FileIssue) {
+        throw new UnsupportedOperationException();
+
+      } else if (issue instanceof LegacyIssue) {
+        LegacyIssue legacyIssue = (LegacyIssue) issue;
+        testIssue = issue(legacyIssue.message(), legacyIssue.line());
+
+      } else {
+        PreciseIssue preciseIssue = (PreciseIssue)issue;
+        IssueLocation location = preciseIssue.primaryLocation();
+
+        int startColumn = location.startLineOffset() + 1;
+        int endColumn = location.endLineOffset() + 1;
+        List<Integer> secondaryLines = new ArrayList<>();
+        for (IssueLocation secondary : preciseIssue.secondaryLocations()) {
+          secondaryLines.add(secondary.startLine());
+        }
+        testIssue = issue(location.message(), location.startLine())
+          .columns(startColumn, endColumn)
+          .endLine(location.endLine())
+          .secondary(secondaryLines);
+      }
+
+      if (issue.cost() != null) {
+        testIssue.effortToFix(issue.cost().intValue());
+      }
+
+      issues.add(testIssue);
+    }
+
     private static int getLine(Tree tree) {
       return ((JavaScriptTree) tree).getLine();
     }
@@ -292,9 +282,9 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   }
 
-  private static class IssueToLine implements Function<Issue, Integer> {
+  private static class IssueToLine implements Function<TestIssue, Integer> {
     @Override
-    public Integer apply(Issue issue) {
+    public Integer apply(TestIssue issue) {
       return issue.line();
     }
   }

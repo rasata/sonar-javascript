@@ -22,21 +22,23 @@ package org.sonar.plugins.javascript;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.javascript.issues.PreciseIssue;
+import org.sonar.javascript.issues.PreciseIssueCompat;
 import org.sonar.javascript.metrics.ComplexityVisitor;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.LegacyIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class JavaScriptCheckContext implements TreeVisitorContext {
@@ -72,51 +74,11 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message) {
-    commonAddIssue(check, getLine(tree), message, -1);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, int line, String message) {
-    commonAddIssue(check, line, message, -1);
-  }
-
-  @Override
-  public void addFileIssue(JavaScriptCheck check, String message) {
-    commonAddIssue(check, -1, message, -1);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost) {
-    commonAddIssue(check, getLine(tree), message, cost);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
-    commonAddIssue(check, line, message, cost);
-  }
-
-  @Override
-  public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-    if (IS_SONARQUBE_52_OR_LATER) {
-      RuleKey ruleKey = ruleKey(check);
-      PreciseIssue.save(sensorContext, inputFile, ruleKey, location, secondaryLocations, cost);
-    } else {
-      commonAddIssue(check, location.startLine(), location.message(), cost == null ? -1 : cost);
-    }
-  }
-
-  @Override
   public File getFile() {
     return inputFile.file();
   }
 
-  /**
-   * Cost is set if <code>cost<code/> is more than zero.
-   */
-  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost) {
-    Preconditions.checkNotNull(message);
-
+  private void saveIssue(JavaScriptCheck check, @Nullable Integer line, String message, @Nullable Double cost) {
     RuleKey ruleKey = ruleKey(check);
 
     IssueBuilder issueBuilder = issuable
@@ -124,10 +86,11 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
       .ruleKey(ruleKey)
       .message(message);
 
-    if (line > 0) {
+    if (line != null) {
       issueBuilder.line(line);
     }
-    if (cost > 0) {
+
+    if (cost != null) {
       issueBuilder.effortToFix(cost);
     }
 
@@ -143,10 +106,6 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
     return ruleKey;
   }
 
-  private static int getLine(Tree tree) {
-    return ((JavaScriptTree) tree).getLine();
-  }
-
   @Override
   public SymbolModel getSymbolModel() {
     return symbolModel;
@@ -160,6 +119,36 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   @Override
   public int getComplexity(Tree tree) {
     return complexity.getComplexity(tree);
+  }
+
+  @Override
+  public void addIssue(Issue issue) {
+    if (issue instanceof FileIssue) {
+      saveFileIssue((FileIssue) issue);
+
+    } else if (issue instanceof LegacyIssue) {
+      saveLegacyIssue((LegacyIssue) issue);
+
+    } else {
+      savePreciseIssue((PreciseIssue) issue);
+    }
+  }
+
+  private void savePreciseIssue(PreciseIssue issue) {
+    if (IS_SONARQUBE_52_OR_LATER) {
+      RuleKey ruleKey = ruleKey(issue.check());
+      PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, issue);
+    } else {
+      saveIssue(issue.check(), issue.primaryLocation().startLine(), issue.primaryLocation().message(), issue.cost());
+    }
+  }
+
+  private void saveLegacyIssue(LegacyIssue issue) {
+    saveIssue(issue.check(), issue.line(), issue.message(), issue.cost());
+  }
+
+  private void saveFileIssue(FileIssue issue) {
+    saveIssue(issue.check(), 0, issue.message(), issue.cost());
   }
 
   private static boolean isSonarQube52OrLater() {
