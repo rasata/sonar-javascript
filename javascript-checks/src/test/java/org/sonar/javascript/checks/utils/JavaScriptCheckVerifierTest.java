@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.javascript.checks.tests.TestIssue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -56,7 +57,7 @@ public class JavaScriptCheckVerifierTest {
 
   @Test
   public void parsing_error() throws Exception {
-    thrown.expectMessage("Unable to parse");
+    thrown.expectMessage("Parse error");
     check("foo(");
   }
 

@@ -19,29 +19,20 @@
  */
 package org.sonar.javascript.checks.utils;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
-import org.sonar.api.source.Symbolizable;
+import org.fest.assertions.Assertions;
 import org.sonar.javascript.JavaScriptCheckContext;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
-import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.javascript.checks.tests.TestIssue;
+import org.sonar.javascript.checks.tests.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -52,35 +43,14 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   private final List<TestIssue> expectedIssues = new ArrayList<>();
 
-  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
-
-  public static JavaScriptCheckContext createContext(File file, ActionParser<Tree> p, Settings settings, Symbolizable symbolizable) {
-    try {
-      ScriptTree scriptTree = (ScriptTree) p.parse(file);
-      SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, symbolizable, settings);
-
-      return new JavaScriptCheckContext(
-        scriptTree,
-        file,
-        symbolModel,
-        settings
-      );
-
-    } catch (RecognitionException e) {
-      throw new IllegalArgumentException("Unable to parse file: " + file.getAbsolutePath(), e);
-    }
-
-  }
 
   public static void verify(JavaScriptCheck check, File file) {
     JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
-    JavaScriptCheckContext context = createContext(file, p, settings(), null);
+    JavaScriptCheckContext context = TestUtils.createContext(file);
     javaScriptCheckVerifier.scanFile(context);
     List<TestIssue> expectedIssues = javaScriptCheckVerifier.expectedIssues;
     Iterator<Issue> actualIssues = getActualIssues(check, context);
@@ -114,22 +84,22 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       throw new AssertionError("Unexpected issue at line " + line(actual) + ": \"" + message(actual) + "\"");
     }
     if (expected.message() != null) {
-      assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
+      Assertions.assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
     if (expected.effortToFix() != null) {
-      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
+      Assertions.assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
     }
     if (expected.startColumn() != null) {
-      assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
+      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
     }
     if (expected.endColumn() != null) {
-      assertThat(((PreciseIssue) actual).primaryLocation().endLineOffset() + 1).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
+      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().endLineOffset() + 1).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
     }
     if (expected.endLine() != null) {
-      assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
+      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
     if (expected.secondaryLines() != null) {
-      assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
+      Assertions.assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
     }
   }
 
@@ -249,14 +219,5 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     return result;
   }
 
-  protected static Settings settings() {
-    Settings settings = new Settings();
-
-    Map<String, String> properties = new HashMap<>();
-    properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
-    settings.addProperties(properties);
-
-    return settings;
-  }
 
 }

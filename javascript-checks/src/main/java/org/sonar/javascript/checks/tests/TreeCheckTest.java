@@ -17,25 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tests;
+package org.sonar.javascript.checks.tests;
 
-import com.google.common.base.Charsets;
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptCheckContext;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
-import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
@@ -43,28 +33,12 @@ import org.sonar.squidbridge.api.CheckMessage;
 
 public class TreeCheckTest {
 
-  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
-
   public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
     File file = new File(relativePath);
     List<Issue> issues = new ArrayList<>();
 
     try {
-      ScriptTree scriptTree = (ScriptTree) p.parse(file);
-
-      SymbolModelImpl symbolModel = SymbolModelImpl.create(
-        scriptTree,
-        null,
-        settings()
-      );
-
-      JavaScriptCheckContext context = new JavaScriptCheckContext(
-        scriptTree,
-        file,
-        symbolModel,
-        settings()
-      );
-
+      JavaScriptCheckContext context = TestUtils.createContext(file);
       issues = check.scanFile(context);
 
     } catch (RecognitionException e) {
@@ -103,13 +77,4 @@ public class TreeCheckTest {
     return checkMessages;
   }
 
-  protected Settings settings() {
-    Settings settings = new Settings();
-
-    Map<String, String> properties = new HashMap<>();
-    properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
-    settings.addProperties(properties);
-
-    return settings;
-  }
 }
