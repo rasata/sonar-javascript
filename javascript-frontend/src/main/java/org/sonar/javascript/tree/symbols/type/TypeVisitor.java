@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.base.Preconditions;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -29,14 +31,17 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Callability;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
@@ -53,12 +58,26 @@ public class TypeVisitor extends BaseTreeVisitor {
   private JQuery jQueryHelper;
   private boolean forLoopVariable = false;
 
+  /**
+   * This set contains symbols for parameters which were already used in function call.
+   * Any time we visit function declaration, we add {@link PrimitiveType.UNKNOWN} type to each parameter.
+   * But if we can infer types of all arguments corresponding to a parameter then this {@link PrimitiveType.UNKNOWN} type should be removed.
+   * For that we check this set.
+   */
+  private Set<Symbol> parametersUsedInCallExpression;
+
   public TypeVisitor(@Nullable Settings settings) {
     if (settings == null) {
       jQueryHelper = new JQuery(JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE.split(", "));
     } else {
       jQueryHelper = new JQuery(settings.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
     }
+  }
+
+  @Override
+  public void visitScript(ScriptTree tree) {
+    parametersUsedInCallExpression = new HashSet<>();
+    super.visitScript(tree);
   }
 
   @Override
@@ -103,8 +122,27 @@ public class TypeVisitor extends BaseTreeVisitor {
     Preconditions.checkState(tree.name().symbol() != null,
       String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
 
-    super.visitFunctionDeclaration(tree);
+    scanParameterList(tree.parameters());
+    scan(tree.body());
     tree.name().symbol().addType(FunctionType.create(tree));
+  }
+
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    scanParameterList(tree.parameters());
+    scan(tree.body());
+  }
+
+  private void scanParameterList(ParameterListTree parameterList) {
+    for (Tree parameter : parameterList.parameters()) {
+      if (parameter instanceof IdentifierTree) {
+        Symbol symbol = ((IdentifierTree) parameter).symbol();
+        if (symbol != null) {
+          symbol.addType(PrimitiveType.UNKNOWN);
+        }
+      }
+    }
+    scan(parameterList);
   }
 
   @Override
@@ -139,7 +177,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     ((TypableTree) tree).add(type);
   }
 
-  private static void inferParameterType(CallExpressionTree tree) {
+  private void inferParameterType(CallExpressionTree tree) {
     Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
@@ -153,6 +191,10 @@ public class TypeVisitor extends BaseTreeVisitor {
         if (currentParameter instanceof IdentifierTree) {
           Symbol symbol = ((IdentifierTree) currentParameter).symbol();
           if (symbol != null) {
+            if (!parametersUsedInCallExpression.contains(symbol)) {
+              symbol.removeOnlyUnknownType();
+              parametersUsedInCallExpression.add(symbol);
+            }
             addTypes(symbol, ((ExpressionTree) arguments.get(i)).types());
           } else {
             throw new IllegalStateException(String.format(

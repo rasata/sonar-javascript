@@ -108,4 +108,10 @@ public class Symbol {
     return types.immutableCopy();
   }
 
+  public void removeOnlyUnknownType() {
+    if (types.containsOnly(Type.Kind.UNKNOWN)) {
+      types = TypeSet.emptyTypeSet();
+    }
+  }
+
 }

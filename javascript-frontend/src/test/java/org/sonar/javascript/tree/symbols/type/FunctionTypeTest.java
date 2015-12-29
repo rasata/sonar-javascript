@@ -76,4 +76,32 @@ public class FunctionTypeTest extends TypeTest {
 
   }
 
+  @Test
+  public void test_parameter_with_unknown() throws Exception {
+    Symbol p4 = getSymbol("p4");
+    assertThat(p4.types()).containsOnly(PrimitiveType.UNKNOWN);
+
+    Symbol p5 = getSymbol("p5");
+    assertThat(p5.types()).hasSize(3);
+    assertThat(p5.types()).contains(PrimitiveType.UNKNOWN);
+    assertThat(p5.types()).contains(PrimitiveType.NUMBER);
+    assertThat(p5.types()).contains(PrimitiveType.BOOLEAN);
+
+    Symbol p6 = getSymbol("p6");
+    assertThat(p6.types()).hasSize(2);
+    assertThat(p6.types()).contains(PrimitiveType.UNKNOWN);
+    assertThat(p6.types()).contains(PrimitiveType.NUMBER);
+
+    Symbol p7 = getSymbol("p7");
+    assertThat(p7.types()).hasSize(2);
+    assertThat(p7.types()).contains(PrimitiveType.STRING);
+    assertThat(p7.types()).contains(PrimitiveType.NUMBER);
+
+    Symbol p8 = getSymbol("p8");
+    assertThat(p8.types()).hasSize(3);
+    assertThat(p8.types()).contains(PrimitiveType.UNKNOWN);
+    assertThat(p8.types()).contains(PrimitiveType.BOOLEAN);
+    assertThat(p8.types()).contains(PrimitiveType.NUMBER);
+  }
+
 }
