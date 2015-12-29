@@ -21,9 +21,9 @@ package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
 import java.io.File;
+import java.util.List;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
 @Beta
 public interface TreeVisitorContext {
@@ -51,7 +51,7 @@ public interface TreeVisitorContext {
    */
   String[] getPropertyValues(String name);
 
-  int getComplexity(Tree tree);
+  <T extends Issue> T addIssue(T issue);
 
-  void addIssue(Issue issue);
+  List<Issue> getIssues();
 }

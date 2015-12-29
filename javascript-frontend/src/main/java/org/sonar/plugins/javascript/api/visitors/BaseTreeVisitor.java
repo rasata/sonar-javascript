@@ -114,9 +114,10 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   }
 
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public final List<Issue> scanFile(TreeVisitorContext context) {
     this.context = context;
     scan(context.getTopTree());
+    return getContext().getIssues();
   }
 
   protected void scan(@Nullable Tree tree) {

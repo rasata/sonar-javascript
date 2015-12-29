@@ -34,12 +34,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.mockito.Mockito.mock;
@@ -244,10 +245,11 @@ public class JavaScriptCheckVerifierTest {
     }
 
     @Override
-    public void scanFile(TreeVisitorContext context) {
+    public List<Issue> scanFile(TreeVisitorContext context) {
       for (TestIssue issue : issues) {
         log(issue, context);
       }
+      return context.getIssues();
     }
 
     public void log(TestIssue issue, TreeVisitorContext context) {

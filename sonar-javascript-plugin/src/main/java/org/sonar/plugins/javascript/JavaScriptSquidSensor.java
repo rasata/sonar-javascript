@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -27,6 +28,8 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,7 @@ import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -51,10 +55,11 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.JavaScriptCheckContext;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
-import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.issues.PreciseIssueCompat;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
@@ -63,10 +68,16 @@ import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
 public class JavaScriptSquidSensor implements Sensor {
+
+  private static final boolean IS_SONARQUBE_52_OR_LATER = isSonarQube52OrLater();
 
   @DependedUpon
   public Collection<Metric> generatesNCLOCMetric() {
@@ -211,23 +222,81 @@ public class JavaScriptSquidSensor implements Sensor {
       settings
     );
 
+    List<Issue> fileIssues = new ArrayList<>();
+
     for (JavaScriptCheck visitor : visitors) {
       if (visitor instanceof CharsetAwareVisitor) {
         ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
       }
 
-      visitor.scanFile(new JavaScriptCheckContext(
-        sensorContext,
+      fileIssues.addAll(visitor.scanFile(new JavaScriptCheckContext(
         scriptTree,
-        issuable,
-        inputFile,
+        inputFile.file(),
         symbolModel,
-        settings,
-        checks,
-        new ComplexityVisitor()
-      ));
+        settings
+      )));
 
     }
+
+    saveFileIssues(sensorContext, fileIssues, inputFile, issuable);
+  }
+
+  private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile, Issuable issuable) {
+    for (Issue issue : fileIssues) {
+      if (issue instanceof FileIssue) {
+        saveIssue(issuable, issue.check(), null, ((FileIssue) issue).message(), issue.cost());
+
+      } else if (issue instanceof LineIssue) {
+        saveIssue(issuable, issue.check(), ((LineIssue)issue).line(), ((LineIssue) issue).message(), issue.cost());
+
+      } else {
+        PreciseIssue preciseIssue = (PreciseIssue)issue;
+        if (IS_SONARQUBE_52_OR_LATER) {
+          RuleKey ruleKey = ruleKey(issue.check());
+          PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, preciseIssue);
+        } else {
+          saveIssue(issuable, issue.check(), preciseIssue.primaryLocation().startLine(), preciseIssue.primaryLocation().message(), issue.cost());
+        }
+      }
+    }
+  }
+
+  private void saveIssue(Issuable issuable, JavaScriptCheck check, @Nullable Integer line, String message, @Nullable Double cost) {
+    RuleKey ruleKey = ruleKey(check);
+
+    IssueBuilder issueBuilder = issuable
+      .newIssueBuilder()
+      .ruleKey(ruleKey)
+      .message(message);
+
+    if (line != null) {
+      issueBuilder.line(line);
+    }
+
+    if (cost != null) {
+      issueBuilder.effortToFix(cost);
+    }
+
+    issuable.addIssue(issueBuilder.build());
+  }
+
+
+  private RuleKey ruleKey(JavaScriptCheck check) {
+    Preconditions.checkNotNull(check);
+    RuleKey ruleKey = checks.ruleKeyFor(check);
+    if (ruleKey == null) {
+      throw new IllegalStateException("No rule key found for a rule");
+    }
+    return ruleKey;
+  }
+
+  private static boolean isSonarQube52OrLater() {
+    for (Method method : Issuable.IssueBuilder.class.getMethods()) {
+      if ("newLocation".equals(method.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {

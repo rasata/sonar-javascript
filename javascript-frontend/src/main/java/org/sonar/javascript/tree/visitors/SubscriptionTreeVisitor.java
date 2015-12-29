@@ -27,6 +27,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
@@ -62,11 +63,17 @@ public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
     // default behaviour is to do nothing
   }
 
+  public void leaveFile(Tree scriptTree) {
+    // default behaviour is to do nothing
+  }
+
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public final List<Issue> scanFile(TreeVisitorContext context) {
     this.context = context;
     visitFile(context.getTopTree());
     scanTree(context.getTopTree());
+    leaveFile(context.getTopTree());
+    return getContext().getIssues();
   }
 
   public void scanTree(Tree tree) {

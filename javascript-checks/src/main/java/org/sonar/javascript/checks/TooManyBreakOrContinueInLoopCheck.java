@@ -26,6 +26,7 @@ import java.util.Stack;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -43,7 +44,6 @@ import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -85,9 +85,9 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   private Stack<JumpTarget> jumpTargets = new Stack<>();
 
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public void visitScript(ScriptTree tree) {
     jumpTargets.clear();
-    super.scanFile(context);
+    super.visitScript(tree);
   }
 
   @Override

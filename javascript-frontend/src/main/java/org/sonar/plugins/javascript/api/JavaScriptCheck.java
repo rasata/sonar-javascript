@@ -20,7 +20,9 @@
 package org.sonar.plugins.javascript.api;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 /**
@@ -37,5 +39,5 @@ public interface JavaScriptCheck {
    */
   void addLineIssue(JavaScriptCheck check, Tree tree, String message);
 
-  void scanFile(TreeVisitorContext context);
+  List<Issue> scanFile(TreeVisitorContext context);
 }

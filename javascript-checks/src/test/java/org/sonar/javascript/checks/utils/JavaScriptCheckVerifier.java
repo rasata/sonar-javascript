@@ -28,12 +28,17 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.api.config.Settings;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.JavaScriptCheckContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
+import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -41,13 +46,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -55,16 +58,33 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   private final List<TestIssue> expectedIssues = new ArrayList<>();
 
-  public static void verify(JavaScriptCheck check, File file) {
-    VerifierContext context = new VerifierContext(file);
-    check.scanFile(context);
-    new JavaScriptCheckVerifier().verify(context);
+  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
+  public static JavaScriptCheckContext createContext(File file, ActionParser<Tree> p, Settings settings, Symbolizable symbolizable) {
+    try {
+      ScriptTree scriptTree = (ScriptTree) p.parse(file);
+      SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, symbolizable, settings);
+
+      return new JavaScriptCheckContext(
+        scriptTree,
+        file,
+        symbolModel,
+        settings
+      );
+
+    } catch (RecognitionException e) {
+      throw new IllegalArgumentException("Unable to parse file: " + file.getAbsolutePath(), e);
+    }
+
   }
 
-  private void verify(VerifierContext context) {
-    scanTree(context.getTopTree());
-    List<TestIssue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(context.getIssues());
-    Iterator<TestIssue> actualIssues = sortedIssues.iterator();
+  public static void verify(JavaScriptCheck check, File file) {
+    JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
+    JavaScriptCheckContext context = createContext(file, p, settings(), null);
+    javaScriptCheckVerifier.scanFile(context);
+    List<TestIssue> expectedIssues = javaScriptCheckVerifier.expectedIssues;
+    Iterator<Issue> actualIssues = getActualIssues(check, context);
+
 
     for (TestIssue expected : expectedIssues) {
       if (actualIssues.hasNext()) {
@@ -75,35 +95,41 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     }
 
     if (actualIssues.hasNext()) {
-      TestIssue issue = actualIssues.next();
-      throw new AssertionError("Unexpected issue at line " + issue.line() + ": \"" + issue.message() + "\"");
+      Issue issue = actualIssues.next();
+      throw new AssertionError("Unexpected issue at line " + line(issue) + ": \"" + message(issue) + "\"");
     }
   }
 
-  private void verifyIssue(TestIssue expected, TestIssue actual) {
-    if (actual.line() > expected.line()) {
+  private static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptCheckContext context) {
+    List<Issue> issues = check.scanFile(context);
+    List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(issues);
+    return sortedIssues.iterator();
+  }
+
+  private static void verifyIssue(TestIssue expected, Issue actual) {
+    if (line(actual) > expected.line()) {
       throw new AssertionError("Missing issue at line " + expected.line());
     }
-    if (actual.line() < expected.line()) {
-      throw new AssertionError("Unexpected issue at line " + actual.line() + ": \"" + actual.message() + "\"");
+    if (line(actual) < expected.line()) {
+      throw new AssertionError("Unexpected issue at line " + line(actual) + ": \"" + message(actual) + "\"");
     }
     if (expected.message() != null) {
-      assertThat(actual.message()).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
+      assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
     if (expected.effortToFix() != null) {
-      assertThat(actual.effortToFix()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
+      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
     }
     if (expected.startColumn() != null) {
-      assertThat(actual.startColumn()).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
+      assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
     }
     if (expected.endColumn() != null) {
-      assertThat(actual.endColumn()).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
+      assertThat(((PreciseIssue) actual).primaryLocation().endLineOffset() + 1).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
     }
     if (expected.endLine() != null) {
-      assertThat(actual.endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
+      assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
     if (expected.secondaryLines() != null) {
-      assertThat(actual.secondaryLines()).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
+      assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
     }
   }
 
@@ -189,99 +215,48 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     return TestIssue.create(message, lineNumber);
   }
 
-  private static class VerifierContext implements TreeVisitorContext {
-
-    protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
-
-    private File file;
-    private ComplexityVisitor complexityVisitor;
-    private ScriptTree tree = null;
-    private SymbolModel symbolModel = null;
-    private List<TestIssue> issues = new ArrayList<>();
-
-    public VerifierContext(File file) {
-      this.file = file;
-      this.complexityVisitor = new ComplexityVisitor();
-
-      try {
-        this.tree = (ScriptTree) p.parse(file);
-        this.symbolModel = SymbolModelImpl.create(tree, null, null);
-
-      } catch (RecognitionException e) {
-        throw new IllegalArgumentException("Unable to parse file: " + file.getAbsolutePath(), e);
-      }
-
-    }
-
-    public List<TestIssue> getIssues() {
-      return issues;
-    }
-
+  private static class IssueToLine implements Function<Issue, Integer> {
     @Override
-    public ScriptTree getTopTree() {
-      return tree;
+    public Integer apply(Issue issue) {
+      return line(issue);
     }
-
-    @Override
-    public File getFile() {
-      return file;
-    }
-
-    @Override
-    public SymbolModel getSymbolModel() {
-      return symbolModel;
-    }
-
-    @Override
-    public int getComplexity(Tree tree) {
-      return complexityVisitor.getComplexity(tree);
-    }
-
-    @Override
-    public void addIssue(Issue issue) {
-      TestIssue testIssue;
-      if (issue instanceof FileIssue) {
-        throw new UnsupportedOperationException();
-
-      } else if (issue instanceof LineIssue) {
-        LineIssue lineIssue = (LineIssue) issue;
-        testIssue = issue(lineIssue.message(), lineIssue.line());
-
-      } else {
-        PreciseIssue preciseIssue = (PreciseIssue)issue;
-        IssueLocation location = preciseIssue.primaryLocation();
-
-        int startColumn = location.startLineOffset() + 1;
-        int endColumn = location.endLineOffset() + 1;
-        List<Integer> secondaryLines = new ArrayList<>();
-        for (IssueLocation secondary : preciseIssue.secondaryLocations()) {
-          secondaryLines.add(secondary.startLine());
-        }
-        testIssue = issue(location.message(), location.startLine())
-          .columns(startColumn, endColumn)
-          .endLine(location.endLine())
-          .secondary(secondaryLines);
-      }
-
-      if (issue.cost() != null) {
-        testIssue.effortToFix(issue.cost().intValue());
-      }
-
-      issues.add(testIssue);
-    }
-
-    @Override
-    public String[] getPropertyValues(String name) {
-      throw new UnsupportedOperationException();
-    }
-
   }
 
-  private static class IssueToLine implements Function<TestIssue, Integer> {
-    @Override
-    public Integer apply(TestIssue issue) {
-      return issue.line();
+  private static int line(Issue issue) {
+    if (issue instanceof PreciseIssue) {
+      return ((PreciseIssue) issue).primaryLocation().startLine();
+    } else {
+      return ((LineIssue) issue).line();
     }
+  }
+
+  private static String message(Issue issue) {
+    if (issue instanceof PreciseIssue) {
+      return ((PreciseIssue) issue).primaryLocation().message();
+    } else {
+      return ((LineIssue) issue).message();
+    }
+  }
+
+  private static List<Integer> secondary(Issue issue) {
+    List<Integer> result = new ArrayList<>();
+
+    if (issue instanceof PreciseIssue) {
+      for (IssueLocation issueLocation : ((PreciseIssue) issue).secondaryLocations()) {
+        result.add(issueLocation.startLine());
+      }
+    }
+    return result;
+  }
+
+  protected static Settings settings() {
+    Settings settings = new Settings();
+
+    Map<String, String> properties = new HashMap<>();
+    properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
+    settings.addProperties(properties);
+
+    return settings;
   }
 
 }

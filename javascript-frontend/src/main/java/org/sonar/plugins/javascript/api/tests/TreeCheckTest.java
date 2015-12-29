@@ -19,25 +19,88 @@
  */
 package org.sonar.plugins.javascript.api.tests;
 
+import com.google.common.base.Charsets;
+import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.api.CheckMessage;
 
 public class TreeCheckTest {
 
-  protected TestCheckContext getContext(File file, JavaScriptCheck check) {
-    return new TestCheckContext(file, settings(), check);
-  }
+  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
   public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
-    TestCheckContext context = getContext(new File(relativePath), check);
-    check.scanFile(context);
-    return context.getIssues();
+    File file = new File(relativePath);
+    List<Issue> issues = new ArrayList<>();
+
+    try {
+      ScriptTree scriptTree = (ScriptTree) p.parse(file);
+
+      SymbolModelImpl symbolModel = SymbolModelImpl.create(
+        scriptTree,
+        null,
+        settings()
+      );
+
+      JavaScriptCheckContext context = new JavaScriptCheckContext(
+        scriptTree,
+        file,
+        symbolModel,
+        settings()
+      );
+
+      issues = check.scanFile(context);
+
+    } catch (RecognitionException e) {
+      if ("ParsingErrorCheck".equals(check.getClass().getSimpleName())) {
+        issues .add(new LineIssue(null, e.getLine(), e.getMessage()));
+      }
+    }
+
+    return getCheckMessages(issues);
+  }
+
+  private Collection<CheckMessage> getCheckMessages(List<Issue> issues) {
+    List<CheckMessage> checkMessages = new ArrayList<>();
+    for (Issue issue : issues) {
+      CheckMessage checkMessage;
+      if (issue instanceof FileIssue) {
+        FileIssue fileIssue = (FileIssue)issue;
+        checkMessage = new CheckMessage(fileIssue.check(), fileIssue.message());
+
+      } else if (issue instanceof LineIssue) {
+        LineIssue lineIssue = (LineIssue)issue;
+        checkMessage = new CheckMessage(lineIssue.check(), lineIssue.message());
+        checkMessage.setLine(lineIssue.line());
+
+      } else {
+        throw new IllegalStateException("To test rules which provide precise issue locations use JavaScriptCheckVerifier#verify()");
+      }
+
+      if (issue.cost() != null) {
+        checkMessage.setCost(issue.cost());
+      }
+
+      checkMessages.add(checkMessage);
+    }
+
+    return checkMessages;
   }
 
   protected Settings settings() {

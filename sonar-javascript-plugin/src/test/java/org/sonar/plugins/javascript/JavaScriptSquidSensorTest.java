@@ -53,6 +53,7 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -296,7 +297,7 @@ public class JavaScriptSquidSensorTest {
       .setLanguage(JavaScriptLanguage.KEY);
   }
 
-  private final class ExceptionRaisingCheck implements JavaScriptCheck {
+  private final class ExceptionRaisingCheck extends BaseTreeVisitor {
 
     private final RuntimeException exception;
 
@@ -315,7 +316,7 @@ public class JavaScriptSquidSensorTest {
     }
 
     @Override
-    public void scanFile(TreeVisitorContext context) {
+    public void visitScript(ScriptTree tree) {
       throw exception;
     }
   }
