@@ -35,6 +35,9 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class TestUtils {
 
+  private TestUtils() {
+  }
+
   protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
   public static JavaScriptCheckContext createContext(File file) {

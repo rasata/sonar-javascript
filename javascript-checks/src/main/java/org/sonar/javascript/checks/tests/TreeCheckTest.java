@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
@@ -42,15 +43,15 @@ public class TreeCheckTest {
       issues = check.scanFile(context);
 
     } catch (RecognitionException e) {
-      if ("ParsingErrorCheck".equals(check.getClass().getSimpleName())) {
-        issues .add(new LineIssue(null, e.getLine(), e.getMessage()));
+      if (check instanceof ParsingErrorCheck) {
+        issues.add(new LineIssue(check, e.getLine(), e.getMessage()));
       }
     }
 
     return getCheckMessages(issues);
   }
 
-  private Collection<CheckMessage> getCheckMessages(List<Issue> issues) {
+  private static Collection<CheckMessage> getCheckMessages(List<Issue> issues) {
     List<CheckMessage> checkMessages = new ArrayList<>();
     for (Issue issue : issues) {
       CheckMessage checkMessage;
