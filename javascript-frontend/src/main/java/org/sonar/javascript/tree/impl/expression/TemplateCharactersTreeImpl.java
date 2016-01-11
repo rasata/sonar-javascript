@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.impl.expression;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -76,6 +75,6 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
 
   @Override
   public void add(Type type) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }

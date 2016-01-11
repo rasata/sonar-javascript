@@ -24,7 +24,6 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -159,6 +158,6 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
 
   @Override
   public void add(Type type) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }

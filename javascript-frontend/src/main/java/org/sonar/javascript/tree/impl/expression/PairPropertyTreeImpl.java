@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.impl.expression;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -85,6 +84,6 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   @Override
   public void add(Type type) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }

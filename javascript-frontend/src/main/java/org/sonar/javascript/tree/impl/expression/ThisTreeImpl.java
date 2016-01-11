@@ -21,7 +21,6 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -67,6 +66,6 @@ public class ThisTreeImpl extends JavaScriptTree implements ThisTree, TypableTre
 
   @Override
   public void add(Type type) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }
